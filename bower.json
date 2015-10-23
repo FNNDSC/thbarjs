@@ -1,0 +1,32 @@
+{
+  "name": "thbarjs",
+  "version": "0.1.0",
+  "homepage": "https://github.com/FNNDSC/thbarjs",
+  "authors": [
+    "Jorge <jbernal0019@yahoo.es>"
+  ],
+  "description": "Thumbnail bar object for medical image volumes",
+  "keywords": [
+    "DICOM",
+    "html5",
+    "javascript",
+    "medical",
+    "imaging"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "jquery-ui": "~1.11.2",
+    "requirejs": "~2.1.15",
+    "utiljs": "https://github.com/FNNDSC/utiljs.git#master",
+    "rboxjs": "https://github.com/FNNDSC/rboxjs.git#master"
+  }
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html >
+<html>
+  <head>
+  	<meta charset="utf-8" >
+    <title>thbarjs demo</title>
+    <!--Include jquery ui styles -->
+    <link rel="stylesheet"  href="js/components/jquery-ui/themes/smoothness/jquery-ui.min.css">
+    <!--Include renderer box styles -->
+    <link rel="stylesheet"  href="styles/thbarjs.css">
+
+    <!--Application styles -->
+    <style>
+      *{
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+      div#directoryselection{
+        position: relative;
+        top: 5px;
+        left: 2px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+      }
+      div#thbarparentcontainer{
+        position: relative;
+        background-color: #353535;
+        border: 6px solid #353535;
+        bottom: 0;
+        left: 5px;
+        height: -webkit-calc(100vh - 70px);
+        height: -moz-calc(100vh - 70px);
+        height: calc(100vh - 70px);
+        margin: 0;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div id="directoryselection">
+      <input id="dirbtn" type="file" multiple>
+    </div>
+
+    <div id="thbarparentcontainer">
+      <div id="thbarcontainer"></div>
+    </div>
+
+    <!-- Load scripts -->
+    <script data-main="main" src="js/components/requirejs/require.js"></script>
+
+  </body>
+</html>
