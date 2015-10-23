@@ -8,7 +8,7 @@ require.config({
     // back to the local jQuery at jquery/dist/jquery.min.js relative to the baseUrl.
     //
     // All JS modules are needed in development mode. However the only modules needed after
-    // building the app are jquery, jquery_ui and rboxjs.
+    // building the app are jquery, jquery_ui and thbarjs.
     jquery: ['https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min', 'jquery/dist/jquery.min'],
     jquery_ui: ['https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min', 'jquery-ui/jquery-ui.min'],
     gapi: 'https://apis.google.com/js/api',

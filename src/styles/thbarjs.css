@@ -4,6 +4,7 @@
   box-sizing: border-box;
 }
 
+/*================================================= THUMBNAIL BAR ================================================== */
 div.view-thumbnailbar{
   position: absolute;
   top: 5px;
