@@ -13,7 +13,7 @@ module.exports = function(grunt) {
       ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
 
     // Custome Paths
-    srcFiles: ['src/js/thbarjs.js'], // source files
+    srcFiles: ['src/js/*.js'], // source files
     componentsDir: 'src/js/components', // bower components
     testFiles: ['spec/*.spec.js'], // test files (jasmine specs)
 
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
             jquery: 'empty:', // does not include jquery in the output
             jquery_ui: 'empty:', // does not include jquery_ui in the output
           },
-          name: 'thbarjs',
+          name: '<%= pkg.name %>',
           mainConfigFile: 'src/main.js',
           out: 'dist/js/<%= pkg.name %>.min.js'
         }
@@ -84,7 +84,7 @@ module.exports = function(grunt) {
     cssmin: { // concat and minimize css
       dist: {
         files: {
-          'dist/styles/thbarjs.css': ['src/styles/**/*.css']
+          'dist/styles/<%= pkg.name %>.css': ['src/styles/**/*.css']
         }
       }
     },
