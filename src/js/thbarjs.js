@@ -283,13 +283,15 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
                  }
 
                  //update the thumbnail info with the series description
-                 var byteArray = new Uint8Array(filedata[0]);
                  try {
-                   var dataSet = dicomParser.parseDicom(byteArray);
-                   title = dataSet.string('x0008103e');
+                   var dicomInfo = rbox.RenderersBox.parseDicom(filedata[0]);
+
+                   title = dicomInfo.seriesDescription;
                    info = title.substr(0, 10);
+
                    jqImg.attr('title', title);
                    $('.view-thumbnail-info', jqTh).text(info);
+
                  } catch(err) {
                    console.log('Could not parse dicom ' + imgFileObj.baseUrl + ' Error - ' + err);
                  }
