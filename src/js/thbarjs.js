@@ -25,8 +25,6 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
       this.version = 0.0;
       // thumbnail container's ID
       this.contId = containerId;
-      // parent container's ID
-      this.parentContId = "";
       // jQuery object for the bar's div element (thumbnail bar container)
       this.jqThBar = null;
       // number of thumbnails in the thumbnail bar
@@ -52,7 +50,6 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
      */
      thbarjs.ThumbnailBar.prototype.init = function(imgFileArr, callback) {
        var self = this;
-       var pContId;
        var tmpRBoxContId = this.contId + '_temprbox'; // container id of the internal temporal renderers box
        var jqThBar;
 
@@ -70,20 +67,16 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        this.rBox = new rbox.RenderersBox(this.contId + '_temprbox', this.fileManager);
        this.rBox.init();
 
-       // set parent container's id
-       this.parentContId = pContId = jqThBar.parent().attr('id');
-
        // add the appropriate classes
-       jqThBar.addClass("view-thumbnailbar " + pContId + "-sortable");
+       jqThBar.addClass("view-thumbnailbar");
 
        // jQuery UI options object for sortable elems
        // ui-sortable CSS class is by default added to the containing elem
        // an elem being moved is assigned the ui-sortable-helper class
        var sort_opts = {
          cursor: 'move',
-         containment: '#' + pContId, // CSS selector within which elem displacement is restricted
+         containment: jqThBar.parent(), // within which elem displacement is restricted
          helper: 'clone', // visually moving element is a clone of the corresponding thumbnail
-         connectWith: '.' + pContId + '-sortable', // CSS selector representing the elems in which we can insert these elems.
          dropOnEmpty: true, // allows depositing items into an empty list
 
          //event handlers
@@ -133,15 +126,17 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
    /**
     * Set a complementary jQuery UI sortable element which the moving helper can be visually appended to.
     *
-    * @param {Object} jQery UI event object.
-    * @param {Object} jQery UI ui object.
+    * @param {String} complementary element's id.
     */
     thbarjs.ThumbnailBar.prototype.setComplementarySortableElem = function(csId) {
 
-      if (this.parentContId === $('#' + csId).parent().attr('id')) {
+      if (this.jqThBar.parent()[0] === $('#' + csId).parent()[0]) {
 
         // the moving helper element can be appended to this element
         this.jqThBar.sortable( "option", "appendTo", '#' + csId);
+        // connect with this sortable element
+        this.jqThBar.sortable( "option", "connectWith", '#' + csId);
+
       } else {
         console.error("The complementary jQuery UI sortable element must have the same parent container as this thumbnail bar");
       }
