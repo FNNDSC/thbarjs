@@ -46,7 +46,15 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
       thBar.destroy();
     }
 
-    thBar = new thbar.ThumbnailBar('thbarcontainer', driveFm);
+    var options = {
+      contId: 'thbarcontainer',
+      layout: 'horizontal',
+      position: {
+        top: '15px',
+        left: '10px'
+      }
+    }
+    thBar = new thbar.ThumbnailBar(options, driveFm);
 
     if ('webkitRelativePath' in files[0]) {
       baseUrl = files[0].webkitRelativePath;
