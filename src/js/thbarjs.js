@@ -360,13 +360,13 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        }
 
        if (layout === 'vertical') {
-         jqThBar.css({ height: 'calc(100%' + t + b });
+         jqThBar.css({ height: 'calc(100%' + t + b + ')' });
 
        } else if (layout === 'horizontal') {
          jqThBar.css({ width: 'calc(100%' + r + l + ')' });
 
        } else if (layout === 'grid') {
-         jqThBar.css({ height: 'calc(100%' + t + b });
+         jqThBar.css({ height: 'calc(100%' + t + b + ')' });
          jqThBar.css({ width: 'calc(100%' + r + l + ')' });
        }
      };

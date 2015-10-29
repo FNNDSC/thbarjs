@@ -19,11 +19,6 @@ div.view-thumbnailbar-x{
   height: 130px;
   white-space: nowrap;
 }
-/*grid thumbnail bar*/
-/*div.view-thumbnailbar-g{
-  height: 130px;
-}*/
-
 
 /*thumbnail image frames (divs) within the thumbnail bar*/
 .view-thumbnail{
