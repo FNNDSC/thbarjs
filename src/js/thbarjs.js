@@ -34,7 +34,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
       if (options.position) {
         this.position = options.position;
       } else {
-        this.position = {top: '5px', left: '5px'};
+        this.position = {};
       }
       // jQuery object for the bar's div element (thumbnail bar container)
       this.jqThBar = null;
@@ -75,7 +75,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
 
        // append a temporal renderer box
        jqThBar.append('<div id="' + tmpRBoxContId + '"></div>');
-       this.rBox = new rbox.RenderersBox(this.contId + '_temprbox', this.fileManager);
+       this.rBox = new rbox.RenderersBox({contId: tmpRBoxContId}, this.fileManager);
        this.rBox.init();
 
        // add the appropriate classes
@@ -122,6 +122,95 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
       // set the layout and position of the thumbnail bar
       this.setLayout(this.layout);
     };
+
+    /**
+     * Set thumbnail bar's layout.
+     *
+     * @param {String} layout: "vertical", "horizontal" or "grid".
+     */
+     thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
+       var jqThBar = this.jqThBar;
+       var jqThs = $('.view-thumbnail', jqThBar);
+
+       this.layout = layout;
+
+       if (layout === 'vertical') {
+
+         jqThBar.removeClass("view-thumbnailbar-x");
+         jqThBar.addClass("view-thumbnailbar-y");
+         jqThs.removeClass("view-thumbnail-x");
+         jqThs.addClass("view-thumbnail-y");
+
+       } else if (layout === 'horizontal') {
+
+         jqThBar.removeClass("view-thumbnailbar-y");
+         jqThBar.addClass("view-thumbnailbar-x");
+         jqThs.removeClass("view-thumbnail-y");
+         jqThs.addClass("view-thumbnail-x");
+
+       } else if (layout === 'grid') {
+         jqThBar.removeClass("view-thumbnailbar-y view-thumbnailbar-x");
+         jqThs.removeClass("view-thumbnail-y");
+         jqThs.addClass("view-thumbnail-x");
+       }
+
+       this.setPosition(this.position);
+     };
+
+    /**
+     * Set a new css position for the thumbnail bar.
+     *
+     * @param {Object} css position object with possible properties: "top", "bottom", "left" and "right".
+     */
+     thbarjs.ThumbnailBar.prototype.setPosition = function(pos) {
+       var jqThBar = this.jqThBar;
+       var layout = this.layout;
+       var t = "", r = "", b = "", l = "";
+
+       if (pos) {
+
+         if (pos.top) {
+           this.position.top = pos.top;
+           jqThBar.css({ top: pos.top });
+           t = ' - ' + pos.top;
+         }
+
+         if (pos.right) {
+           this.position.right = pos.right;
+           jqThBar.css({ right: pos.right });
+           r = ' - ' + pos.right;
+         }
+
+         if (pos.bottom) {
+           this.position.bottom = pos.bottom;
+           jqThBar.css({ bottom: pos.bottom });
+           b = ' - ' + pos.bottom;
+         }
+
+         if (pos.left) {
+           this.position.left = pos.left;
+           jqThBar.css({ left: pos.left });
+           l = ' - ' + pos.left;
+         }
+
+         if ((layout === 'vertical') && (t || b)) {
+           jqThBar.css({ height: 'calc(100%' + t + b + ')' });
+
+         } else if ((layout === 'horizontal') && (r || l)) {
+           jqThBar.css({ width: 'calc(100%' + r + l + ')' });
+
+         } else if (layout === 'grid') {
+
+           if (t || b) {
+             jqThBar.css({ height: 'calc(100%' + t + b + ')' });
+           }
+
+           if (r || l) {
+             jqThBar.css({ width: 'calc(100%' + r + l + ')' });
+           }
+         }
+       }
+     };
 
     /**
     * This method is called just before dropping a moving thumbnail's visual element on a complementary
@@ -203,6 +292,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        } else {
          fname = ''; title = ''; info = '';
        }
+
        if (fname) {
          if (fname.lastIndexOf('-') !== -1) {
            title = fname.substring(0, fname.lastIndexOf('.'));
@@ -221,6 +311,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
            '<div class="view-thumbnail-info">' + info + '</div>' +
          '</div>'
        );
+
        jqTh = $('#' + this.getThumbnailContId(id));
        jqImg = $('.view-thumbnail-img', jqTh);
 
@@ -326,84 +417,6 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          createAndReadThumbnailUrl();
        }
     };
-
-    /**
-     * Set a new css position for the thumbnail bar.
-     *
-     * @param {Object} css position object with possible properties: "top", "bottom", "left" and "right".
-     */
-     thbarjs.ThumbnailBar.prototype.setPosition = function(pos) {
-       var jqThBar = this.jqThBar;
-       var layout = this.layout;
-       var t = "", r = "", b = "", l = "";
-
-       this.position = pos;
-
-       if (pos.top) {
-         jqThBar.css({ top: pos.top });
-         t = ' - ' + pos.top;
-       }
-
-       if (pos.right) {
-         jqThBar.css({ right: pos.right });
-         r = ' - ' + pos.right;
-       }
-
-       if (pos.bottom) {
-         jqThBar.css({ bottom: pos.bottom });
-         b = ' - ' + pos.bottom;
-       }
-
-       if (pos.left) {
-         jqThBar.css({ left: pos.left });
-         l = ' - ' + pos.left;
-       }
-
-       if (layout === 'vertical') {
-         jqThBar.css({ height: 'calc(100%' + t + b + ')' });
-
-       } else if (layout === 'horizontal') {
-         jqThBar.css({ width: 'calc(100%' + r + l + ')' });
-
-       } else if (layout === 'grid') {
-         jqThBar.css({ height: 'calc(100%' + t + b + ')' });
-         jqThBar.css({ width: 'calc(100%' + r + l + ')' });
-       }
-     };
-
-     /**
-      * Set thumbnail bar's layout.
-      *
-      * @param {String} layout: "vertical", "horizontal" or "grid".
-      */
-      thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
-        var jqThBar = this.jqThBar;
-        var jqThs = $('.view-thumbnail', jqThBar);
-
-        this.layout = layout;
-
-        if (layout === 'vertical') {
-
-          jqThBar.removeClass("view-thumbnailbar-x");
-          jqThBar.addClass("view-thumbnailbar-y");
-          jqThs.removeClass("view-thumbnail-x");
-          jqThs.addClass("view-thumbnail-y");
-
-        } else if (layout === 'horizontal') {
-
-          jqThBar.removeClass("view-thumbnailbar-y");
-          jqThBar.addClass("view-thumbnailbar-x");
-          jqThs.removeClass("view-thumbnail-y");
-          jqThs.addClass("view-thumbnail-x");
-
-        } else if (layout === 'grid') {
-          jqThBar.removeClass("view-thumbnailbar-y view-thumbnailbar-x");
-          jqThs.removeClass("view-thumbnail-y");
-          jqThs.addClass("view-thumbnail-x");
-        }
-
-        this.setPosition(this.position);
-      };
 
     /**
      * Remove event handlers and html interface.

@@ -34,6 +34,16 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
   // thumbnail bar object
   var thBar = null;
 
+  // thumbnail bar options object
+  var options = {
+    contId: 'thbarcontainer',
+    layout: 'grid',
+    position: {
+      top: '15px',
+      left: '10px'
+    }
+  };
+
   // Event handler for the directory loader button
   var dirBtn = document.getElementById('dirbtn');
 
@@ -46,14 +56,8 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
       thBar.destroy();
     }
 
-    var options = {
-      contId: 'thbarcontainer',
-      layout: 'horizontal',
-      position: {
-        top: '15px',
-        left: '10px'
-      }
-    }
+    // Create a thumbnail bar. The second parameter (a file manager) is optional and only required
+    // if files are going to be loaded from GDrive
     thBar = new thbar.ThumbnailBar(options, driveFm);
 
     if ('webkitRelativePath' in files[0]) {
