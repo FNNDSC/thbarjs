@@ -8,14 +8,29 @@
 div.view-thumbnailbar{
   position: absolute;
   margin: 0;
+}
+
+/*thumbnail bar's handle*/
+div.view-thumbnailbar-handle{
+  margin: 0;
+  font-size: 30px;
+  color: #D9E2D4;
+  display: inline-block;
+  cursor: move;
+}
+
+/*thumbnail bar's sortable div*/
+div.view-thumbnailbar-sortable{
+  margin: 0;
   overflow: auto;
 }
 /*vertical thumbnail bar*/
-div.view-thumbnailbar-y{
+div.view-thumbnailbar-sortable-y{
   width: 115px;
+  height: calc(100% - 35px);
 }
 /*horizontal thumbnail bar*/
-div.view-thumbnailbar-x{
+div.view-thumbnailbar-sortable-x{
   height: 130px;
   white-space: nowrap;
 }

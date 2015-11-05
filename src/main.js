@@ -27,6 +27,12 @@ require.config({
 require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
   // Entry point
 
+  $('#thbarparentcontainer').sortable({
+    cursor: 'move',
+    //containment: '#thbarparentcontainer',
+    distance: '150'
+  });
+
   // Create a file manager object
   var CLIENT_ID = '1050768372633-ap5v43nedv10gagid9l70a2vae8p9nah.apps.googleusercontent.com';
   var driveFm = new fm.GDriveFileManager(CLIENT_ID);
@@ -37,7 +43,7 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
   // thumbnail bar options object
   var options = {
     contId: 'thbarcontainer',
-    layout: 'grid',
+    layout: 'vertical',
     position: {
       top: '15px',
       left: '10px'

@@ -38,6 +38,8 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
       }
       // jQuery object for the bar's div element (thumbnail bar container)
       this.jqThBar = null;
+      // jQuery object for the sortable div element inside the thumbnail bar
+      this.jqSortable = null;
       // number of thumbnails in the thumbnail bar
       this.numThumbnails = 0;
       // number of currently loaded thumbnails
@@ -78,6 +80,13 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        this.rBox = new rbox.RenderersBox({contId: tmpRBoxContId}, this.fileManager);
        this.rBox.init();
 
+       // append a bar handle
+       jqThBar.append('<div class="view-thumbnailbar-handle">...</div>');
+
+       // append sortable div
+       this.jqSortable = $('<div class="view-thumbnailbar-sortable"></div>');
+       jqThBar.append(this.jqSortable);
+
        // add the appropriate classes
        jqThBar.addClass("view-thumbnailbar");
 
@@ -97,8 +106,8 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          }
       };
 
-      // make the thumnail bar a jQuery UI's sortable element
-      jqThBar.sortable(sort_opts);
+      // make the sortable div within the thumbnail bar a jQuery UI's sortable element
+      this.jqSortable.sortable(sort_opts);
 
       var checkIfThumbnailBarIsReady =  function() {
 
@@ -129,27 +138,27 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
      * @param {String} layout: "vertical", "horizontal" or "grid".
      */
      thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
-       var jqThBar = this.jqThBar;
-       var jqThs = $('.view-thumbnail', jqThBar);
+       var jqSortable = this.jqSortable;
+       var jqThs = $('.view-thumbnail', this.jqThBar);
 
        this.layout = layout;
 
        if (layout === 'vertical') {
 
-         jqThBar.removeClass("view-thumbnailbar-x");
-         jqThBar.addClass("view-thumbnailbar-y");
+         jqSortable.removeClass("view-thumbnailbar-sortable-x");
+         jqSortable.addClass("view-thumbnailbar-sortable-y");
          jqThs.removeClass("view-thumbnail-x");
          jqThs.addClass("view-thumbnail-y");
 
        } else if (layout === 'horizontal') {
 
-         jqThBar.removeClass("view-thumbnailbar-y");
-         jqThBar.addClass("view-thumbnailbar-x");
+         jqSortable.removeClass("view-thumbnailbar-sortable-y");
+         jqSortable.addClass("view-thumbnailbar-sortable-x");
          jqThs.removeClass("view-thumbnail-y");
          jqThs.addClass("view-thumbnail-x");
 
        } else if (layout === 'grid') {
-         jqThBar.removeClass("view-thumbnailbar-y view-thumbnailbar-x");
+         jqSortable.removeClass("view-thumbnailbar-sortable-y view-thumbnailbar-sortable-x");
          jqThs.removeClass("view-thumbnail-y");
          jqThs.addClass("view-thumbnail-x");
        }
@@ -227,22 +236,17 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
      };
 
    /**
-    * Set a complementary jQuery UI sortable element which the moving helper can be visually appended to.
+    * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
     *
-    * @param {String} complementary element's id.
+    * @param {String} css selector indicating the complementary sortable elements.
     */
-    thbarjs.ThumbnailBar.prototype.setComplementarySortableElem = function(csId) {
+    thbarjs.ThumbnailBar.prototype.setComplementarySortableElems = function(cssSelector) {
 
-      if (this.jqThBar.parent()[0] === $('#' + csId).parent()[0]) {
+      // the moving helper element can be appended to these elements
+      this.jqSortable.sortable( "option", "appendTo", cssSelector);
 
-        // the moving helper element can be appended to this element
-        this.jqThBar.sortable( "option", "appendTo", '#' + csId);
-        // connect with this sortable element
-        this.jqThBar.sortable( "option", "connectWith", '#' + csId);
-
-      } else {
-        console.error("The complementary jQuery UI sortable element must have the same parent container as this thumbnail bar");
-      }
+      // connect with these sortable elements
+      this.jqSortabl.sortable( "option", "connectWith", cssSelector);
     };
 
     /**
@@ -280,7 +284,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
      thbarjs.ThumbnailBar.prototype.loadThumbnail = function(imgFileObj, callback) {
        var fname, info, title, jqTh, jqImg;
        var id = imgFileObj.id;
-       var jqThBar = this.jqThBar;
+       var jqSortable = this.jqSortable;
        var rBox = this.rBox;
 
        // we assume the name of the thumbnail can be of the form:
@@ -304,8 +308,8 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          }
        }
 
-       // append this thumbnail to thumbnailbar
-       jqThBar.append(
+       // append this thumbnail to the sortable div within the thumbnailbar
+       jqSortable.append(
          '<div id="' + this.getThumbnailContId(id) + '" class="view-thumbnail">' +
            '<img class="view-thumbnail-img" title="' + title + '">' +
            '<div class="view-thumbnail-info">' + info + '</div>' +
