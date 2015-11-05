@@ -246,7 +246,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
       this.jqSortable.sortable( "option", "appendTo", cssSelector);
 
       // connect with these sortable elements
-      this.jqSortabl.sortable( "option", "connectWith", cssSelector);
+      this.jqSortable.sortable( "option", "connectWith", cssSelector);
     };
 
     /**
