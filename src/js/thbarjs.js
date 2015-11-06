@@ -138,27 +138,27 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
      * @param {String} layout: "vertical", "horizontal" or "grid".
      */
      thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
-       var jqSortable = this.jqSortable;
-       var jqThs = $('.view-thumbnail', this.jqThBar);
+       var jqThBar = this.jqThBar;
+       var jqThs = $('.view-thumbnail', jqThBar);
 
        this.layout = layout;
 
        if (layout === 'vertical') {
 
-         jqSortable.removeClass("view-thumbnailbar-sortable-x");
-         jqSortable.addClass("view-thumbnailbar-sortable-y");
+         jqThBar.removeClass("view-thumbnailbar-x");
+         jqThBar.addClass("view-thumbnailbar-y");
          jqThs.removeClass("view-thumbnail-x");
          jqThs.addClass("view-thumbnail-y");
 
        } else if (layout === 'horizontal') {
 
-         jqSortable.removeClass("view-thumbnailbar-sortable-y");
-         jqSortable.addClass("view-thumbnailbar-sortable-x");
+         jqThBar.removeClass("view-thumbnailbar-y");
+         jqThBar.addClass("view-thumbnailbar-x");
          jqThs.removeClass("view-thumbnail-y");
          jqThs.addClass("view-thumbnail-x");
 
        } else if (layout === 'grid') {
-         jqSortable.removeClass("view-thumbnailbar-sortable-y view-thumbnailbar-sortable-x");
+         jqThBar.removeClass("view-thumbnailbar-y view-thumbnailbar-x");
          jqThs.removeClass("view-thumbnail-y");
          jqThs.addClass("view-thumbnail-x");
        }

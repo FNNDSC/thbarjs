@@ -9,6 +9,15 @@ div.view-thumbnailbar{
   position: absolute;
   margin: 0;
 }
+/*vertical thumbnail bar*/
+div.view-thumbnailbar-y{
+  width: 115px;
+}
+/*horizontal thumbnail bar*/
+div.view-thumbnailbar-x{
+  height: 162px;
+  white-space: nowrap;
+}
 
 /*thumbnail bar's handle*/
 div.view-thumbnailbar-handle{
@@ -22,17 +31,8 @@ div.view-thumbnailbar-handle{
 /*thumbnail bar's sortable div*/
 div.view-thumbnailbar-sortable{
   margin: 0;
-  overflow: auto;
-}
-/*vertical thumbnail bar*/
-div.view-thumbnailbar-sortable-y{
-  width: 115px;
   height: calc(100% - 35px);
-}
-/*horizontal thumbnail bar*/
-div.view-thumbnailbar-sortable-x{
-  height: 130px;
-  white-space: nowrap;
+  overflow: auto;
 }
 
 /*thumbnail image frames (divs) within the thumbnail bar*/
