@@ -15,7 +15,7 @@ div.view-thumbnailbar-y{
 }
 /*horizontal thumbnail bar*/
 div.view-thumbnailbar-x{
-  height: 162px;
+  height: 165px;
   white-space: nowrap;
 }
 
@@ -31,7 +31,7 @@ div.view-thumbnailbar-handle{
 /*thumbnail bar's sortable div*/
 div.view-thumbnailbar-sortable{
   margin: 0;
-  height: calc(100% - 35px);
+  height: calc(100% - 40px);
   overflow: auto;
 }
 
