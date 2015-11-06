@@ -7,13 +7,22 @@ define(['thbarjs'], function(thbarjs) {
 
   describe('thbarjs', function() {
     var thBar;
+    // thumbnail bar options object
+    var options = {
+      contId: 'thbarcontainer',
+      layout: 'vertical',
+      position: {
+        top: '15px',
+        left: '10px'
+      }
+    };
 
     // Append container div
     $(document.body).append('<div id="thbarcontainer"></div>');
 
 
     beforeEach(function() {
-      thBar = new thbarjs.ThumbnailBar('thbarcontainer');
+      thBar = new thbarjs.ThumbnailBar(options);
       thBar.init([{
         id: 0,
         baseUrl: "/",
