@@ -5,7 +5,7 @@
   "authors": [
     "Jorge <jbernal0019@yahoo.es>"
   ],
-  "description": "Thumbnail bar object for medical image volumes",
+  "description": "Thumbnails bar object for medical image volumes",
   "keywords": [
     "DICOM",
     "html5",
@@ -27,6 +27,6 @@
     "jquery-ui": "~1.11.2",
     "requirejs": "~2.1.15",
     "utiljs": "https://github.com/FNNDSC/utiljs.git#master",
-    "rboxjs": "https://github.com/FNNDSC/rboxjs.git#master"
+    "rendererjs": "https://github.com/FNNDSC/rendererjs.git#master"
   }
 }

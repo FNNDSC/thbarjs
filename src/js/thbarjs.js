@@ -1,101 +1,125 @@
 /**
- * This module implements a thumbnail bar
+ * This module implements a thumbnails bar
  */
 
 // define a new module
-define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
+define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
   /**
-   * Provide a namespace for the thumbnail bar module
+   * Provide a namespace for the thumbnails bar module
    *
    * @namespace
    */
    var thbarjs = thbarjs || {};
 
    /**
-    * Class implementing the thumbnail bar
+    * Class implementing the thumbnails bar
     *
     * @constructor
-    * @param {Object} thumbnail bar's options with properties: contId, layout, position.
+    * @param {Object} thumbnails bar's options with properties:
+    *   -container: thumbnails bar's container's DOM id or DOM object
+    *   -position: thumbnails bar's css position object with possible properties top, bottom, left, right
+    *   -layout: thumbnails bar's layout, either of the strings 'vertical', 'horizontal' or 'grid'
+    *   -thumbnailsIdPrefix: a prefix string for the DOM ids used for all of the thumbnails' containers
     * @param {Object} optional file manager object to enable reading of files from the cloud or HTML5
     * sandboxed filesystem.
     */
     thbarjs.ThumbnailBar = function(options, fileManager) {
 
       this.version = 0.0;
-      // thumbnail bar container's ID
-      this.contId = options.contId;
-      // layout: vertical or horizontal
-      this.layout = 'vertical';
-      if (options.layout) {
-        this.layout = options.layout;
+
+      // thumbnails bar's container
+      if (typeof options.container === 'string') {
+
+        // a DOM id was passed
+        this.container = $('#' + options.container);
+
+      } else {
+
+        // a DOM object was passed
+        this.container = $(options.container);
       }
-      // thumbnail bar's css position object with possible properties top, bottom, left, right
+
+      // thumbnails bar's css position object with possible properties top, bottom, left, right
       if (options.position) {
         this.position = options.position;
       } else {
         this.position = {};
       }
-      // jQuery object for the bar's div element (thumbnail bar container)
-      this.jqThBar = null;
-      // jQuery object for the sortable div element inside the thumbnail bar
+
+      // layout: vertical or horizontal
+      this.layout = 'vertical';
+      if (options.layout) {
+        this.layout = options.layout;
+      }
+
+      // prefix string for the DOM ids that are going to be used for the thumbnails' containers
+      this.thumbnailsIdPrefix = options.thumbnailsIdPrefix;
+
+      // jQuery object for the sortable div element inside the thumbnails bar
       this.jqSortable = null;
-      // number of thumbnails in the thumbnail bar
+
+      // number of thumbnails in the thumbnails bar
       this.numThumbnails = 0;
+
       // number of currently loaded thumbnails
       this.numOfLoadedThumbnails = 0;
+
       // file manager object
       this.fileManager = null;
       if (fileManager) {this.fileManager = fileManager;}
     };
 
     /**
-     * Initialize the thumbnail bar.
+     * Initialize the thumbnails bar.
      *
      * @param {Array} array of image file objects. Each object contains the following properties:
      *  -id: Integer, the object's id
      *  -baseUrl: String ‘directory/containing/the/files’
-     *  -imgType: String neuroimage type. Any of the possible values returned by rboxjs.RenderersBox.imgType
-     *  -files: Array of HTML5 File objects (it contains a single file for imgType different from 'dicom')
-     *         DICOM files with the same base url/path are assumed to belong to the same volume
-     *  -thumbnail: HTML5 or custom File object (optional jpg file for a thumbnail image)
-     * @param {Function} optional callback to be called when the thumbnail bar is ready
+     *  -imgType: String neuroimage type. Any of the possible values returned by rendererjs.Renderer.imgType
+     *  -files: Array of HTML5 File objects or custom file objects with properties:
+     *     -remote: a boolean indicating whether the file has not been read locally (with a filepicker)
+     *     -url the file's url
+     *     -cloudId: the id of the file in a cloud storage system if stored in the cloud
+     *     -name: file name
+     *  The files array contains a single file for imgType different from 'dicom' or 'dicomzip'
+     *  -thumbnail: Optional HTML5 or custom File object (optional jpg file for a thumbnail image)
+     * @param {Function} optional callback to be called when the thumbnails bar is ready
      */
      thbarjs.ThumbnailBar.prototype.init = function(imgFileArr, callback) {
        var self = this;
-       var tmpRBoxContId = this.contId + '_temprbox'; // container id of the internal temporal renderers box
-       var jqThBar;
+       var rendererId = self.thumbnailsIdPrefix + '_renderer';
 
-       // return if thumbnail bar already initialized
-       if (this.jqThBar) {
-         if (callback) {callback();}
-         return;
-       }
+       // append an internal renderer
+       var jqR = $('<div></div>');
+       self.container.append(jqR);
 
-       // set jQuery obj for the thumbnail bar
-       this.jqThBar = jqThBar = $('#' + this.contId);
+       // internal renderer options object
+       var options = {
+         container: jqR[0],
+         rendererId: rendererId, // for the internal XTK renderer container
+       };
 
-       // append a temporal renderer box
-       jqThBar.append('<div id="' + tmpRBoxContId + '"></div>');
-       this.rBox = new rbox.RenderersBox({contId: tmpRBoxContId}, this.fileManager);
-       this.rBox.init();
+       // create the internal renderer
+       self.renderer = new renderer.Renderer(options, self.fileManager);
+       self.renderer.init();
 
        // append a bar handle
-       jqThBar.append('<div class="view-thumbnailbar-handle">...</div>');
+       self.container.append('<div class="view-thumbnailsbar-handle">...</div>');
 
        // append sortable div
-       this.jqSortable = $('<div class="view-thumbnailbar-sortable"></div>');
-       jqThBar.append(this.jqSortable);
+       self.jqSortable = $('<div class="view-thumbnailsbar-sortable"></div>');
+       self.container.append(self.jqSortable);
 
        // add the appropriate classes
-       jqThBar.addClass("view-thumbnailbar");
+       self.container.addClass("view-thumbnailsbar");
 
        // jQuery UI options object for sortable elems
        // ui-sortable CSS class is by default added to the containing elem
        // an elem being moved is assigned the ui-sortable-helper class
        var sort_opts = {
          cursor: 'move',
-         containment: jqThBar.parent(), // within which elem displacement is restricted
+         containment: self.container.parent(), // within which elem displacement is restricted
          helper: 'clone', // visually moving element is a clone of the corresponding thumbnail
          dropOnEmpty: true, // allows depositing items into an empty list
 
@@ -106,73 +130,73 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          }
       };
 
-      // make the sortable div within the thumbnail bar a jQuery UI's sortable element
-      this.jqSortable.sortable(sort_opts);
+      // make the sortable div within the thumbnails bar a jQuery UI's sortable element
+      self.jqSortable.sortable(sort_opts);
 
       var checkIfThumbnailBarIsReady =  function() {
 
         if (++self.numOfLoadedThumbnails === self.numThumbnails) {
           // all thumbnails loaded
 
-          // destroy and remove temporal renderers box
-          self.rBox.destroy();
-          $('#' + tmpRBoxContId).remove();
+          // destroy and remove internal renderers box
+          self.renderer.destroy();
+          self.renderer.container.remove();
 
           if (callback) {callback();}
         }
       };
 
       // load thumbnail images and create their UIs when ready
-      this.numThumbnails = imgFileArr.length;
-      for (var i=0; i<this.numThumbnails; i++) {
-        this.loadThumbnail(imgFileArr[i], checkIfThumbnailBarIsReady);
+      self.numThumbnails = imgFileArr.length;
+      for (var i=0; i<self.numThumbnails; i++) {
+        self.loadThumbnail(imgFileArr[i], checkIfThumbnailBarIsReady);
       }
 
-      // set the layout and position of the thumbnail bar
-      this.setLayout(this.layout);
+      // set the layout and position of the thumbnails bar
+      self.setLayout(self.layout);
     };
 
     /**
-     * Set thumbnail bar's layout.
+     * Set thumbnails bar's layout.
      *
      * @param {String} layout: "vertical", "horizontal" or "grid".
      */
      thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
-       var jqThBar = this.jqThBar;
-       var jqThs = $('.view-thumbnail', jqThBar);
+       var cont = this.container;
+       var ths = $('.view-thumbnail', cont);
 
        this.layout = layout;
 
        if (layout === 'vertical') {
 
-         jqThBar.removeClass("view-thumbnailbar-x");
-         jqThBar.addClass("view-thumbnailbar-y");
-         jqThs.removeClass("view-thumbnail-x");
-         jqThs.addClass("view-thumbnail-y");
+         cont.removeClass("view-thumbnailsbar-x");
+         cont.addClass("view-thumbnailsbar-y");
+         ths.removeClass("view-thumbnail-x");
+         ths.addClass("view-thumbnail-y");
 
        } else if (layout === 'horizontal') {
 
-         jqThBar.removeClass("view-thumbnailbar-y");
-         jqThBar.addClass("view-thumbnailbar-x");
-         jqThs.removeClass("view-thumbnail-y");
-         jqThs.addClass("view-thumbnail-x");
+         cont.removeClass("view-thumbnailsbar-y");
+         cont.addClass("view-thumbnailsbar-x");
+         ths.removeClass("view-thumbnail-y");
+         ths.addClass("view-thumbnail-x");
 
        } else if (layout === 'grid') {
-         jqThBar.removeClass("view-thumbnailbar-y view-thumbnailbar-x");
-         jqThs.removeClass("view-thumbnail-y");
-         jqThs.addClass("view-thumbnail-x");
+         cont.removeClass("view-thumbnailsbar-y view-thumbnailsbar-x");
+         ths.removeClass("view-thumbnail-y");
+         ths.addClass("view-thumbnail-x");
        }
 
        this.setPosition(this.position);
      };
 
     /**
-     * Set a new css position for the thumbnail bar.
+     * Set a new css position for the thumbnails bar.
      *
      * @param {Object} css position object with possible properties: "top", "bottom", "left" and "right".
      */
      thbarjs.ThumbnailBar.prototype.setPosition = function(pos) {
-       var jqThBar = this.jqThBar;
+       var cont = this.container;
        var layout = this.layout;
        var t = "", r = "", b = "", l = "";
 
@@ -180,42 +204,42 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
 
          if (pos.top) {
            this.position.top = pos.top;
-           jqThBar.css({ top: pos.top });
+           cont.css({ top: pos.top });
            t = ' - ' + pos.top;
          }
 
          if (pos.right) {
            this.position.right = pos.right;
-           jqThBar.css({ right: pos.right });
+           cont.css({ right: pos.right });
            r = ' - ' + pos.right;
          }
 
          if (pos.bottom) {
            this.position.bottom = pos.bottom;
-           jqThBar.css({ bottom: pos.bottom });
+           cont.css({ bottom: pos.bottom });
            b = ' - ' + pos.bottom;
          }
 
          if (pos.left) {
            this.position.left = pos.left;
-           jqThBar.css({ left: pos.left });
+           cont.css({ left: pos.left });
            l = ' - ' + pos.left;
          }
 
          if ((layout === 'vertical') && (t || b)) {
-           jqThBar.css({ height: 'calc(100%' + t + b + ')' });
+           cont.css({ height: 'calc(100%' + t + b + ')' });
 
          } else if ((layout === 'horizontal') && (r || l)) {
-           jqThBar.css({ width: 'calc(100%' + r + l + ')' });
+           cont.css({ width: 'calc(100%' + r + l + ')' });
 
          } else if (layout === 'grid') {
 
            if (t || b) {
-             jqThBar.css({ height: 'calc(100%' + t + b + ')' });
+             cont.css({ height: 'calc(100%' + t + b + ')' });
            }
 
            if (r || l) {
-             jqThBar.css({ width: 'calc(100%' + r + l + ')' });
+             cont.css({ width: 'calc(100%' + r + l + ')' });
            }
          }
        }
@@ -285,7 +309,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        var fname, info, title, jqTh, jqImg;
        var id = imgFileObj.id;
        var jqSortable = this.jqSortable;
-       var rBox = this.rBox;
+       var renderer = this.renderer;
 
        // we assume the name of the thumbnail can be of the form:
        // 1.3.12.2.1107.5.2.32.35288.30000012092602261631200043880-AXIAL_RFMT_MPRAGE-Sag_T1_MEMPRAGE_1_mm_4e_nomoco.jpg
@@ -308,7 +332,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          }
        }
 
-       // append this thumbnail to the sortable div within the thumbnailbar
+       // append this thumbnail to the sortable div within the thumbnails bar
        jqSortable.append(
          '<div id="' + this.getThumbnailContId(id) + '" class="view-thumbnail">' +
            '<img class="view-thumbnail-img" title="' + title + '">' +
@@ -321,7 +345,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
 
        // internal function to read the thumbnail's url so it can be assigned to the src of <img>
        function readThumbnailUrl(thumbnail) {
-         rBox.readFile(thumbnail, 'readAsDataURL', function(data) {
+         renderer.readFile(thumbnail, 'readAsDataURL', function(data) {
            jqImg.attr('src', data);
 
            if (callback) {callback();}
@@ -332,7 +356,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
        function createAndReadThumbnailUrl() {
          var filedata = [];
          var numFiles = 0;
-         var vol = rBox.createVolume(imgFileObj);
+         var vol = r.createVolume(imgFileObj);
          var render;
          var tempRenderContId = jqTh.attr('id') + '_temp';
          var imgWidth = jqImg.css('width');
@@ -342,12 +366,12 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          jqImg.css({ display:'none' });
          jqTh.prepend('<div id="' + tempRenderContId + '"></div>');
          $('#' + tempRenderContId).css({ width: imgWidth, height: imgHeight });
-         render = rBox.create2DRender(tempRenderContId, 'Z');
+         render = r.createRenderer(tempRenderContId, 'Z');
 
          render.afterRender = function() {
            var canvas = $('#' + tempRenderContId + ' > canvas')[0];
 
-           rBox.readFile(util.dataURItoJPGBlob(canvas.toDataURL('image/jpeg')), 'readAsDataURL', function(data) {
+           renderer.readFile(util.dataURItoJPGBlob(canvas.toDataURL('image/jpeg')), 'readAsDataURL', function(data) {
              jqImg.attr('src', data);
              render.remove(vol);
              vol.destroy();
@@ -361,7 +385,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
          };
 
          function readFile(file, pos) {
-           rBox.readFile(file, 'readAsArrayBuffer', function(data) {
+           renderer.readFile(file, 'readAsArrayBuffer', function(data) {
              filedata[pos] = data;
 
              if (++numFiles === imgFileObj.files.length) {
@@ -373,7 +397,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
                    var fDataArr = [];
 
                    for (var i=0; i<filedata.length; i++) {
-                     fDataArr = fDataArr.concat(rBox.unzipFileData(filedata[i]));
+                     fDataArr = fDataArr.concat(r.unzipFileData(filedata[i]));
                    }
                    fDataArr = util.sortObjArr(fDataArr, 'name');
 
@@ -388,7 +412,7 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
 
                  //update the thumbnail info with the series description
                  try {
-                   var dicomInfo = rbox.RenderersBox.parseDicom(filedata[0]);
+                   var dicomInfo = renderer.Renderer.parseDicom(filedata[0]);
 
                    title = dicomInfo.seriesDescription;
                    info = title.substr(0, 10);
@@ -429,8 +453,8 @@ define(['utiljs', 'rboxjs', 'jquery_ui'], function(util, rbox) {
 
        this.numThumbnails = 0;
        this.numOfLoadedThumbnails = 0;
-       this.jqThBar.empty();
-       this.jqThBar = null;
+       this.container.empty();
+       this.container = null;
      };
 
 
