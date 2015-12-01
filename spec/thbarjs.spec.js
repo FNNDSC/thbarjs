@@ -43,9 +43,9 @@ define(['thbarjs'], function(thbarjs) {
       thBar.destroy();
     });
 
-    it('thbarjs.ThumbnailBar.prototype.getThumbnailContId(0) returns thbarcontainer_th0',
+    it('thbarjs.ThumbnailBar.prototype.getThumbnailContId(0) returns th0',
       function () {
-        expect(thBar.getThumbnailContId(0)).toEqual('thbarcontainer_th0');
+        expect(thBar.getThumbnailContId(0)).toEqual('th0');
       }
     );
 

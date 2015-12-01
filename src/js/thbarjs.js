@@ -364,7 +364,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
           rendererId: '',
         };
 
-        var tmpRenderer = new renderer.Renderer(options, self.fileManager);
+        var tmpRenderer = new renderer.Renderer(options, this.fileManager);
 
         tmpRenderer.readFile(thFile, 'readAsDataURL', function(thData) {
 
@@ -383,10 +383,11 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * @param {Function} callback to be called when the thumbnail has been craated.
      */
      thbarjs.ThumbnailBar.prototype.createThumbnail = function(imgFileObj, jqImg, callback) {
+       var self = this;
 
        // append an internal temporal renderer
        var tempRenderCont = $('<div></div>');
-       this.container.append(tempRenderCont);
+       self.container.append(tempRenderCont);
 
        // renderer options object
        var options = {
