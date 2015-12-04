@@ -332,12 +332,14 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        if (imgFileObj.thumbnail) {
 
          self.readThumbnail(imgFileObj.thumbnail, $('.view-thumbnail-img', jqTh), function() {
+
            if (callback) {callback();}
          });
 
        } else {
 
          self.createThumbnail(imgFileObj, $('.view-thumbnail-img', jqTh), function() {
+
            if (callback) {callback();}
          });
        }
@@ -376,7 +378,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
     /**
      * Load the thumbnail corresponding to the imgFileObj argument. If there is a thumbnail
      * property in the imgFileObj then load it otherwise automatically create the thumbnail
-     * from an internal renderer's canvas object
+     * from the canvas of an internal renderer object.
      *
      * @param {Oject} Image file object as in the addThumbnail method.
      * @param {Function} jQuery object for the thumbnail's <img> element.
@@ -385,7 +387,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      thbarjs.ThumbnailBar.prototype.createThumbnail = function(imgFileObj, jqImg, callback) {
        var self = this;
 
-       // append an internal temporal renderer
+       // append a container for the internal temporal renderer
        var tempRenderCont = $('<div></div>');
        self.container.append(tempRenderCont);
 
@@ -395,24 +397,35 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          rendererId: self.thumbnailsIdPrefix + '_tmprenderer' + imgFileObj.id, // for the internal XTK renderer container
        };
 
-       // create an internal temporal renderer
+       // append a container for the temporal renderer's internal XTK renderer
+       tempRenderCont.append('<div id="' + options.rendererId + '"></div>');
+
+       // make div for the renderer's canvas the same size as the <img> element
+       var imgWidth = jqImg.css('width');
+       var imgHeight = jqImg.css('height');
+       $('#' + options.rendererId).css({ width: imgWidth, height: imgHeight });
+
+       // create the temporal renderer object
        var tmpRenderer = new renderer.Renderer(options, self.fileManager);
 
-       tmpRenderer.init(imgFileObj, function() {
+       tmpRenderer.imgFileObj = imgFileObj;
+       tmpRenderer.createRenderer();
+       tmpRenderer.createVolume();
 
-         // make div for the renderer's canvas the same size as the <img> element
-         var imgWidth = jqImg.css('width');
-         var imgHeight = jqImg.css('height');
-         $('#' + options.rendererId).css({ width: imgWidth, height: imgHeight });
+       tmpRenderer.readVolumeFiles( function() {
 
-         tmpRenderer.getThumbnail( function(thData) {
+         tmpRenderer.renderVolume( function() {
 
-           jqImg.attr('src', thData);
-           if (callback) {callback();}
+           tmpRenderer.getThumbnail( function(thData) {
 
-           // destroy this renderer
-           tmpRenderer.destroy();
-           tempRenderCont.remove();
+             jqImg.attr('src', thData);
+
+             if (callback) {callback();}
+
+             // destroy this renderer
+             tmpRenderer.destroy();
+             tempRenderCont.remove();
+           });
          });
        });
      };
