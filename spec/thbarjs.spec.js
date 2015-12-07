@@ -24,7 +24,7 @@ define(['thbarjs'], function(thbarjs) {
 
 
     beforeEach(function() {
-      thBar = new thbarjs.ThumbnailBar(options);
+      thBar = new thbarjs.ThumbnailsBar(options);
       thBar.init([{
         id: 0,
         baseUrl: "/",
@@ -43,7 +43,7 @@ define(['thbarjs'], function(thbarjs) {
       thBar.destroy();
     });
 
-    it('thbarjs.ThumbnailBar.prototype.getThumbnailContId(0) returns th0',
+    it('thbarjs.ThumbnailsBar.prototype.getThumbnailContId(0) returns th0',
       function () {
         expect(thBar.getThumbnailContId(0)).toEqual('th0');
       }

@@ -24,7 +24,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
     * @param {Object} optional file manager object to enable reading of files from the cloud or HTML5
     * sandboxed filesystem.
     */
-    thbarjs.ThumbnailBar = function(options, fileManager) {
+    thbarjs.ThumbnailsBar = function(options, fileManager) {
 
       this.version = 0.0;
 
@@ -86,7 +86,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *  -thumbnail: Optional HTML5 or custom File object (optional jpg file for a thumbnail image)
      * @param {Function} optional callback to be called when the thumbnails bar is ready
      */
-     thbarjs.ThumbnailBar.prototype.init = function(imgFileArr, callback) {
+     thbarjs.ThumbnailsBar.prototype.init = function(imgFileArr, callback) {
        var self = this;
 
        // append a bar handle
@@ -118,7 +118,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
       // make the sortable div within the thumbnails bar a jQuery UI's sortable element
       self.jqSortable.sortable(sort_opts);
 
-      var checkIfThumbnailBarIsReady =  function() {
+      var checkIfThumbnailsBarIsReady =  function() {
 
         if (++self.numOfLoadedThumbnails === self.numThumbnails) {
 
@@ -130,7 +130,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
       // load thumbnail images and create their UIs when ready
       self.numThumbnails = imgFileArr.length;
       for (var i=0; i<self.numThumbnails; i++) {
-        self.addThumbnail(imgFileArr[i], checkIfThumbnailBarIsReady);
+        self.addThumbnail(imgFileArr[i], checkIfThumbnailsBarIsReady);
       }
 
       // set the layout and position of the thumbnails bar
@@ -142,7 +142,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *
      * @param {String} layout: "vertical", "horizontal" or "grid".
      */
-     thbarjs.ThumbnailBar.prototype.setLayout = function(layout) {
+     thbarjs.ThumbnailsBar.prototype.setLayout = function(layout) {
        var cont = this.container;
        var ths = $('.view-thumbnail', cont);
 
@@ -176,7 +176,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *
      * @param {Object} css position object with possible properties: "top", "bottom", "left" and "right".
      */
-     thbarjs.ThumbnailBar.prototype.setPosition = function(pos) {
+     thbarjs.ThumbnailsBar.prototype.setPosition = function(pos) {
        var cont = this.container;
        var layout = this.layout;
        var t = "", r = "", b = "", l = "";
@@ -233,7 +233,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * @param {Object} jQuery UI event object.
      * @param {Object} jQuery UI ui object.
      */
-     thbarjs.ThumbnailBar.prototype.onBeforeStop = function(evt, ui) {
+     thbarjs.ThumbnailsBar.prototype.onBeforeStop = function(evt, ui) {
 
        console.log('onBeforeStop not overwritten!');
        console.log('event obj: ', evt);
@@ -245,7 +245,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
     *
     * @param {String} css selector indicating the complementary sortable elements.
     */
-    thbarjs.ThumbnailBar.prototype.setComplementarySortableElems = function(cssSelector) {
+    thbarjs.ThumbnailsBar.prototype.setComplementarySortableElems = function(cssSelector) {
 
       // the moving helper element can be appended to these elements
       this.jqSortable.sortable( "option", "appendTo", cssSelector);
@@ -260,7 +260,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * @param {Number} thumbnail's integer id.
      * @return {String} the thumbnail's container DOM id.
      */
-     thbarjs.ThumbnailBar.prototype.getThumbnailContId = function(thumbnailId) {
+     thbarjs.ThumbnailsBar.prototype.getThumbnailContId = function(thumbnailId) {
 
        // the thumbnail's container DOM id is related to the thumbnail's integer id
        return this.thumbnailsIdPrefix + thumbnailId;
@@ -272,7 +272,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * @param {String} thumbnail's container DOM id.
      * @return {Number} thumbnail's integer id.
      */
-     thbarjs.ThumbnailBar.prototype.getThumbnailId = function(thumbnailContId) {
+     thbarjs.ThumbnailsBar.prototype.getThumbnailId = function(thumbnailContId) {
 
        // the thumbnail's integer id is related to the thumbnail's container DOM id
        return  parseInt(thumbnailContId.replace(this.thumbnailsIdPrefix, ""));
@@ -294,7 +294,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *  -thumbnail: Optional HTML5 File or custom file object (optional jpg file for a thumbnail image)
      * @param {Function} optional callback to be called when the thumbnail has been added
      */
-     thbarjs.ThumbnailBar.prototype.addThumbnail = function(imgFileObj, callback) {
+     thbarjs.ThumbnailsBar.prototype.addThumbnail = function(imgFileObj, callback) {
        var fname, info, title;
        var id = imgFileObj.id;
        var self = this;
@@ -358,7 +358,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
       * @param {Function} jQuery object for the thumbnail's <img> element.
       * @param {Function} callback to be called when the thumbnail has been loaded.
       */
-      thbarjs.ThumbnailBar.prototype.loadThumbnail = function(thFile, jqImg, callback) {
+      thbarjs.ThumbnailsBar.prototype.loadThumbnail = function(thFile, jqImg, callback) {
 
         // renderer options object
         var options = {
@@ -384,7 +384,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * @param {Function} jQuery object for the thumbnail's <img> element.
      * @param {Function} callback to be called when the thumbnail has been craated.
      */
-     thbarjs.ThumbnailBar.prototype.createThumbnail = function(imgFileObj, jqImg, callback) {
+     thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqImg, callback) {
        var self = this;
 
        // append a container for the internal temporal renderer
@@ -433,7 +433,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
     /**
      * Remove event handlers and html interface.
      */
-     thbarjs.ThumbnailBar.prototype.destroy = function() {
+     thbarjs.ThumbnailsBar.prototype.destroy = function() {
 
        this.numThumbnails = 0;
        this.numOfLoadedThumbnails = 0;

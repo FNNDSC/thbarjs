@@ -65,7 +65,7 @@ require(['fmjs', 'rendererjs', 'thbarjs'], function(fm, renderer, thbar) {
 
     // Create a thumbnails bar. The second parameter (a file manager) is optional and only required
     // if files are going to be loaded from GDrive
-    thBar = new thbar.ThumbnailBar(options, driveFm);
+    thBar = new thbar.ThumbnailsBar(options, driveFm);
 
     if ('webkitRelativePath' in files[0]) {
       baseUrl = files[0].webkitRelativePath;
