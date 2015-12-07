@@ -1,7 +1,7 @@
 {
   "name": "thbarjs",
   "version": "0.1.0",
-  "description": "Thumbnail bar object for medical image volumes",
+  "description": "Thumbnails bar object for medical image volumes",
   "keywords": [
     "DICOM",
     "html5",

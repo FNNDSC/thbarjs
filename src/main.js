@@ -17,14 +17,14 @@ require.config({
     dicomParser: 'dicomParser/dist/dicomParser.min',
     utiljs: 'utiljs/src/js/utiljs',
     fmjs: 'fmjs/src/js/fmjs',
-    xtk: 'rboxjs/src/js/lib/xtk',
-    rboxjs: 'rboxjs/src/js/rboxjs',
+    xtk: 'rendererjs/src/js/lib/xtk',
+    rendererjs: 'rendererjs/src/js/rendererjs',
     thbarjs: '../thbarjs'
   }
 });
 
 
-require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
+require(['fmjs', 'rendererjs', 'thbarjs'], function(fm, renderer, thbar) {
   // Entry point
 
   $('#thbarparentcontainer').sortable({
@@ -37,17 +37,18 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
   var CLIENT_ID = '1050768372633-ap5v43nedv10gagid9l70a2vae8p9nah.apps.googleusercontent.com';
   var driveFm = new fm.GDriveFileManager(CLIENT_ID);
 
-  // thumbnail bar object
+  // thumbnails bar object
   var thBar = null;
 
-  // thumbnail bar options object
+  // thumbnails bar options object
   var options = {
-    contId: 'thbarcontainer',
-    layout: 'vertical',
+    container: document.getElementById('thbarcontainer'),
     position: {
       top: '15px',
       left: '10px'
-    }
+    },
+    layout: 'vertical',
+    thumbnailsIdPrefix: 'th'
   };
 
   // Event handler for the directory loader button
@@ -62,9 +63,9 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
       thBar.destroy();
     }
 
-    // Create a thumbnail bar. The second parameter (a file manager) is optional and only required
+    // Create a thumbnails bar. The second parameter (a file manager) is optional and only required
     // if files are going to be loaded from GDrive
-    thBar = new thbar.ThumbnailBar(options, driveFm);
+    thBar = new thbar.ThumbnailsBar(options, driveFm);
 
     if ('webkitRelativePath' in files[0]) {
       baseUrl = files[0].webkitRelativePath;
@@ -74,7 +75,7 @@ require(['fmjs', 'rboxjs', 'thbarjs'], function(fm, rbox, thbar) {
       imgFileArr.push({
         id: i,
         baseUrl: baseUrl,
-        imgType: rbox.RenderersBox.imgType(files[i]),
+        imgType: renderer.Renderer.imgType(files[i]),
         files: [files[i]]
       });
     }
