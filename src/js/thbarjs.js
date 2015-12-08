@@ -163,6 +163,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          ths.addClass("view-thumbnail-x");
 
        } else if (layout === 'grid') {
+
          cont.removeClass("view-thumbnailsbar-y view-thumbnailsbar-x");
          ths.removeClass("view-thumbnail-y");
          ths.addClass("view-thumbnail-x");
@@ -302,19 +303,28 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        // we assume the name of an already existing thumbnail (eg. generated on the server side) is of the form:
        // 1.3.12.2.1107.5.2.32.35288.30000012092602261631200043880-AXIAL_RFMT_MPRAGE-Sag_T1_MEMPRAGE_1_mm_4e_nomoco.jpg
        if (imgFileObj.thumbnail) {
+
          fname = imgFileObj.thumbnail.name;
+
        } else if (imgFileObj.imgType !== 'dicom'){
+
          fname = imgFileObj.files[0].name;
+
        } else {
+
          fname = ''; title = ''; info = '';
        }
 
        if (fname) {
+
          if (fname.lastIndexOf('-') !== -1) {
+
            title = fname.substring(0, fname.lastIndexOf('.'));
            title = title.substring(title.lastIndexOf('-') + 1);
            info = title.substr(0, 10);
+
          } else {
+
            title = fname;
            info = fname.substring(0, fname.lastIndexOf('.')).substr(-10);
          }
@@ -327,18 +337,19 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
            '<div class="view-thumbnail-info">' + info + '</div>' +
          '</div>'
        );
+
        self.jqSortable.append(jqTh);
 
        if (imgFileObj.thumbnail) {
 
-         self.loadThumbnail(imgFileObj.thumbnail, $('.view-thumbnail-img', jqTh), function() {
+         self.loadThumbnail(imgFileObj.thumbnail, jqTh, function() {
 
            if (callback) {callback();}
          });
 
        } else {
 
-         self.createThumbnail(imgFileObj, $('.view-thumbnail-img', jqTh), function() {
+         self.createThumbnail(imgFileObj, jqTh, function() {
 
            if (callback) {callback();}
          });
@@ -355,10 +366,11 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
       *   -url the file's url
       *   -cloudId: the id of the file in a cloud storage system if stored in the cloud
       *   -name: file name
-      * @param {Function} jQuery object for the thumbnail's <img> element.
+      * @param {Function} jQuery object for the thumbnail's div frame.
       * @param {Function} callback to be called when the thumbnail has been loaded.
       */
-      thbarjs.ThumbnailsBar.prototype.loadThumbnail = function(thFile, jqImg, callback) {
+      thbarjs.ThumbnailsBar.prototype.loadThumbnail = function(thFile, jqTh, callback) {
+        var jqThImg = $('.view-thumbnail-img', jqTh);
 
         // renderer options object
         var options = {
@@ -370,8 +382,8 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
         tmpRenderer.readFile(thFile, 'readAsDataURL', function(thData) {
 
-          jqImg.attr('src', thData);
-          if (callback) {callback();}
+          jqThImg.attr('src', thData);
+          if (callback) { callback(); }
         });
       };
 
@@ -382,10 +394,12 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *
      * @param {Oject} Image file object as in the addThumbnail method.
      * @param {Function} jQuery object for the thumbnail's <img> element.
-     * @param {Function} callback to be called when the thumbnail has been craated.
+     * @param {Function} callback to be called when the thumbnail has been created.
      */
-     thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqImg, callback) {
+     thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqTh, callback) {
        var self = this;
+       var jqThImg = $('.view-thumbnail-img', jqTh);
+       var jqThInfo = $('.view-thumbnail-info', jqTh);
 
        // append a container for the internal temporal renderer
        var tempRenderCont = $('<div></div>');
@@ -401,8 +415,8 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        tempRenderCont.append('<div id="' + options.rendererId + '"></div>');
 
        // make div for the renderer's canvas the same size as the <img> element
-       var imgWidth = jqImg.css('width');
-       var imgHeight = jqImg.css('height');
+       var imgWidth = jqThImg.css('width');
+       var imgHeight = jqThImg.css('height');
        $('#' + options.rendererId).css({ width: imgWidth, height: imgHeight });
 
        // create the temporal renderer object
@@ -414,11 +428,20 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        tmpRenderer.readVolumeFiles( function() {
 
+         if (tmpRenderer.imgFileObj.dicomInfo) {
+
+           //update the thumbnail info with the series description
+           var title = tmpRenderer.imgFileObj.dicomInfo.seriesDescription;
+           var info = title.substr(0, 10);
+           jqThImg.attr('title', title);
+           jqThInfo.text(info);
+         }
+
          tmpRenderer.renderVolume( function() {
 
            tmpRenderer.getThumbnail( function(thData) {
 
-             jqImg.attr('src', thData);
+             jqThImg.attr('src', thData);
 
              if (callback) {callback();}
 
