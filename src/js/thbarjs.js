@@ -393,7 +393,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      * from the canvas of an internal renderer object.
      *
      * @param {Oject} Image file object as in the addThumbnail method.
-     * @param {Function} jQuery object for the thumbnail's <img> element.
+     * @param {Function} jQuery object for the thumbnail's div frame.
      * @param {Function} callback to be called when the thumbnail has been created.
      */
      thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqTh, callback) {
