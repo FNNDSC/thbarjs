@@ -331,7 +331,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        if (imgFileObj.thumbnail) {
 
-         self.readThumbnail(imgFileObj.thumbnail, $('.view-thumbnail-img', jqTh), function() {
+         self.loadThumbnail(imgFileObj.thumbnail, $('.view-thumbnail-img', jqTh), function() {
 
            if (callback) {callback();}
          });
