@@ -439,16 +439,27 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
          tmpRenderer.renderVolume( function() {
 
-           tmpRenderer.getThumbnail( function(thData) {
+           if (tmpRenderer.error) {
 
-             jqThImg.attr('src', thData);
+             jqThImg.attr('alt', "Bad data");
+
+             tmpRenderer.destroy();
+             tempRenderCont.remove();
 
              if (callback) {callback();}
 
-             // destroy this renderer
-             tmpRenderer.destroy();
-             tempRenderCont.remove();
-           });
+           } else {
+
+             tmpRenderer.getThumbnail( function(thData) {
+
+               jqThImg.attr('src', thData);
+
+               tmpRenderer.destroy();
+               tempRenderCont.remove();
+
+               if (callback) {callback();}
+             });
+           }
          });
        });
      };
