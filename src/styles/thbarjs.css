@@ -82,8 +82,9 @@ div.view-thumbnailsbar-sortable{
   font-family: 'Droid Sans', sans-serif;
   background-color: #FF5722;
   text-align:center;
+  font-size:16px;
 }
 
 .badData > i {
-  font-size:64px;
+  font-size:56px;
 }
