@@ -23,7 +23,7 @@ div.view-thumbnailsbar-x{
 div.view-thumbnailsbar-handle{
   margin: 0;
   font-size: 30px;
-  color: #D9E2D4;
+  color: #F9F9F9;
   display: inline-block;
   cursor: move;
 }
@@ -37,11 +37,11 @@ div.view-thumbnailsbar-sortable{
 
 /*thumbnail image frames (divs) within the thumbnail bar*/
 .view-thumbnail{
-  border-style: solid;
-  border-width: 1px;
-  width: 98px;
+  border:1px solid #607D8B;
+  width: 100%;
   margin-bottom: 2px;
   display: inline-block;
+  background-color: #212121;
 }
 /*vertical thumbnail*/
 .view-thumbnail-y{
@@ -52,7 +52,7 @@ div.view-thumbnailsbar-sortable{
   margin: 0 2px 0 0;
 }
 .view-thumbnail:hover{
-  border: 1px solid #D9E2D4;
+  border: 1px solid #F9F9F9;
 }
 
 /*image within a thumbnail frame*/
@@ -60,12 +60,14 @@ div.view-thumbnailsbar-sortable{
   display: block;
   height: 96px;
   width: 96px;
+  margin: auto;
 }
 
 /*text info within a thumbnail frame*/
 .view-thumbnail-info{
   font-size: 11px;
   text-align:center;
-  background-color: black;
-  color: #DDE8BB;
+  background-color: #1DE9B6;
+  color: #212121;
+  font-family: 'Droid Sans', sans-serif;
 }
