@@ -440,8 +440,10 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          tmpRenderer.renderVolume( function() {
 
            if (tmpRenderer.error) {
-
-             jqThImg.attr('alt', "Bad data");
+             // hide image
+             jqThImg.hide();
+             // create invalid data container to be displayed instead
+             $( '<div class="badData"> <i class="fa fa-times"></i> Invalid data <div/>').prependTo(jqThImg.parent());
 
              tmpRenderer.destroy();
              tempRenderCont.remove();
