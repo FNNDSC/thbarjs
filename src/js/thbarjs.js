@@ -466,6 +466,21 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        });
      };
 
+     /**
+      * Remove a thumbnail from the thumbnails bar.
+      *
+      * @param {Number} thumbnail's integer id.
+      */
+      thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(thumbnailId) {
+
+        var contId = this.getThumbnailContId(thumbnailId);
+
+        $('#' + contId).remove();
+
+        this.numThumbnails--;
+        this.numOfLoadedThumbnails--;
+      };
+
     /**
      * Remove event handlers and html interface.
      */
