@@ -293,7 +293,9 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
     };
 
     /**
-     * Create and add a thumbnail to the thumbnails bar.
+     * Add a thumbnail corresponding to the imgFileObj argument to the thumbnails bar. If there is
+     * a thumbnail property in the imgFileObj then load it otherwise automatically create the thumbnail
+     * from an internal renderer's canvas object
      *
      * @param {Oject} Image file object with the properties:
      *  -id: Integer, the object's id
@@ -319,13 +321,10 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
          fname = imgFileObj.thumbnail.name;
 
-       } else if (imgFileObj.imgType !== 'dicom'){
+       } else if (imgFileObj.imgType !== 'dicom') {
 
          fname = imgFileObj.files[0].name;
 
-       } else {
-
-         fname = ''; title = ''; info = '';
        }
 
        if (fname) {
@@ -341,6 +340,11 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
            title = fname;
            info = fname.substring(0, fname.lastIndexOf('.')).substr(-10);
          }
+
+       } else {
+
+         title = imgFileObj.files[0].name;
+         info = title.substr(-10);
        }
 
        // append this thumbnail to the sortable div within the thumbnails bar
@@ -370,9 +374,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      };
 
      /**
-      * Load the thumbnail corresponding to the imgFileObj argument. If there is a thumbnail
-      * property in the imgFileObj then load it otherwise automatically create the thumbnail
-      * from an internal renderer's canvas object
+      * Load a thumbnail image.
       *
       * @param {Oject} HTML5 File object or custom file object with properties:
       *   -remote: a boolean indicating whether the file has not been read locally (with a filepicker)
@@ -401,9 +403,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
       };
 
     /**
-     * Load the thumbnail corresponding to the imgFileObj argument. If there is a thumbnail
-     * property in the imgFileObj then load it otherwise automatically create the thumbnail
-     * from the canvas of an internal renderer object.
+     * Create a thumbnail image from the canvas of an internal renderer object.
      *
      * @param {Oject} Image file object as in the addThumbnail method.
      * @param {Function} jQuery object for the thumbnail's div frame.
@@ -478,6 +478,21 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          });
        });
      };
+
+     /**
+      * Remove a thumbnail from the thumbnails bar.
+      *
+      * @param {Number} thumbnail's integer id.
+      */
+      thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(thumbnailId) {
+
+        var contId = this.getThumbnailContId(thumbnailId);
+
+        $('#' + contId).remove();
+
+        this.numThumbnails--;
+        this.numOfLoadedThumbnails--;
+      };
 
     /**
      * Remove event handlers and html interface.
