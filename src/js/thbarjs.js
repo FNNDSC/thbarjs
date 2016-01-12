@@ -112,19 +112,13 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          //event handlers
          // beforeStop is called when the placeholder is still in the list
          beforeStop: function(evt, ui) {
+
            self.onBeforeStop(evt, ui);
          },
 
-         sort: function(evt, ui) {
-           self.onSort(evt, ui);
-         },
-
          start: function(evt, ui) {
-           self.onStart(evt, ui);
-         },
 
-         stop: function(evt, ui) {
-           self.onStop(evt, ui);
+           self.onStart(evt, ui);
          }
       };
 
@@ -241,8 +235,8 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      };
 
     /**
-    * This method is called just before dropping a moving thumbnail's visual element on a complementary
-    * jQuery UI's sortable element.
+     * This method is called just before dropping a moving thumbnail's visual element on a complementary
+     * jQuery UI's sortable element.
      *
      * @param {Object} jQuery UI event object.
      * @param {Object} jQuery UI ui object.
@@ -254,19 +248,32 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        console.log('ui obj: ', ui);
      };
 
-   /**
-    * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
-    *
-    * @param {String} css selector indicating the complementary sortable elements.
-    */
-    thbarjs.ThumbnailsBar.prototype.setComplementarySortableElems = function(cssSelector) {
+    /**
+     * This method is called at the beginning of moving a thumbnail's visual element
+     *
+     * @param {Object} jQuery UI event object.
+     * @param {Object} jQuery UI ui object.
+     */
+     thbarjs.ThumbnailsBar.prototype.onStart = function(evt, ui) {
 
-      // the moving helper element can be appended to these elements
-      this.jqSortable.sortable( "option", "appendTo", cssSelector);
+       console.log('onStart not overwritten!');
+       console.log('event obj: ', evt);
+       console.log('ui obj: ', ui);
+     };
 
-      // connect with these sortable elements
-      this.jqSortable.sortable( "option", "connectWith", cssSelector);
-    };
+    /**
+     * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
+     *
+     * @param {String} css selector indicating the complementary sortable elements.
+     */
+     thbarjs.ThumbnailsBar.prototype.setComplementarySortableElems = function(cssSelector) {
+
+       // the moving helper element can be appended to these elements
+       this.jqSortable.sortable( "option", "appendTo", cssSelector);
+
+       // connect with these sortable elements
+       this.jqSortable.sortable( "option", "connectWith", cssSelector);
+     };
 
     /**
      * Return a thumbnail's container DOM id.
