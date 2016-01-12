@@ -103,6 +103,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        // ui-sortable CSS class is by default added to the containing elem
        // an elem being moved is assigned the ui-sortable-helper class
        var sort_opts = {
+         zIndex: 9999,
          cursor: 'move',
          containment: self.container.parent(), // within which elem displacement is restricted
          helper: 'clone', // visually moving element is a clone of the corresponding thumbnail
@@ -112,6 +113,18 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          // beforeStop is called when the placeholder is still in the list
          beforeStop: function(evt, ui) {
            self.onBeforeStop(evt, ui);
+         },
+
+         sort: function(evt, ui) {
+           self.onSort(evt, ui);
+         },
+
+         start: function(evt, ui) {
+           self.onStart(evt, ui);
+         },
+
+         stop: function(evt, ui) {
+           self.onStop(evt, ui);
          }
       };
 
