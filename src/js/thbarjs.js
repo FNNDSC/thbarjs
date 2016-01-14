@@ -130,13 +130,17 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
         if (++self.numOfLoadedThumbnails === self.numThumbnails) {
 
           // all thumbnails loaded, thumbnails bar is ready
-          if (callback) {callback();}
+          self.sortThumbnails(); // sort thumbnails in the DOM by title
+
+          if (callback) { callback(); }
         }
       };
 
       // load thumbnail images and create their UIs when ready
       self.numThumbnails = imgFileArr.length;
+
       for (var i=0; i<self.numThumbnails; i++) {
+
         self.addThumbnail(imgFileArr[i], checkIfThumbnailsBarIsReady);
       }
 
@@ -500,6 +504,40 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
         this.numThumbnails--;
         this.numOfLoadedThumbnails--;
       };
+
+    /**
+     * Sort thumbnails in the DOM by the title attribute of their <img> elements.
+     */
+     thbarjs.ThumbnailsBar.prototype.sortThumbnails = function() {
+
+       var thumbnails = $('.view-thumbnail', this.jqSortable);
+
+       var thArr = thumbnails.toArray().sort(function(el1, el2) {
+
+         var val1 = $('img', el1).attr('title');
+         var val2 = $('img', el2).attr('title');
+
+         var values = [val1, val2].sort();
+
+         if (values[0] === values[1]) {
+
+           return 0;
+
+         } else if (values[0] === val1) {
+
+           return -1;
+
+         } else {
+
+           return 1;
+         }
+       });
+
+       thArr.forEach(function(el) {
+
+         thumbnails.append(el);
+       });
+     };
 
     /**
      * Remove event handlers and html interface.
