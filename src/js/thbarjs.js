@@ -119,6 +119,11 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          start: function(evt, ui) {
 
            self.onStart(evt, ui);
+         },
+
+         sort: function(evt, ui) {
+
+           self.onSort(evt, ui);
          }
       };
 
