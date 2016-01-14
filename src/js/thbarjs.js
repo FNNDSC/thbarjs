@@ -119,11 +119,6 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          start: function(evt, ui) {
 
            self.onStart(evt, ui);
-         },
-
-         sort: function(evt, ui) {
-
-           self.onSort(evt, ui);
          }
       };
 
@@ -269,19 +264,6 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        console.log('event obj: ', evt);
        console.log('ui obj: ', ui);
      };
-
-     /**
-      * This method is called during sorting of a thumbnail's element.
-      *
-      * @param {Object} jQuery UI event object.
-      * @param {Object} jQuery UI ui object.
-      */
-      thbarjs.ThumbnailsBar.prototype.onSort = function(evt, ui) {
-
-        console.log('onSort not overwritten!');
-        console.log('event obj: ', evt);
-        console.log('ui obj: ', ui);
-      };
 
     /**
      * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
