@@ -510,33 +510,19 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      */
      thbarjs.ThumbnailsBar.prototype.sortThumbnails = function() {
 
-       var thumbnails = $('.view-thumbnail', this.jqSortable);
+       var parent = $('.view-thumbnail', this.jqSortable).parent();
+       var thumbnails = $('.view-thumbnail', this.jqSortable).detach();
 
-       var thArr = thumbnails.toArray().sort(function(el1, el2) {
+       var thArr = thumbnails.sort(function(el1, el2) {
 
          var val1 = $('img', el1).attr('title');
          var val2 = $('img', el2).attr('title');
 
-         var values = [val1, val2].sort();
+         return val1 > val2;
 
-         if (values[0] === values[1]) {
-
-           return 0;
-
-         } else if (values[0] === val1) {
-
-           return -1;
-
-         } else {
-
-           return 1;
-         }
        });
 
-       thArr.forEach(function(el) {
-
-         thumbnails.append(el);
-       });
+       parent.append(thArr);
      };
 
     /**
