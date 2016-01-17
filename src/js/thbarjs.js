@@ -289,7 +289,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        // the thumbnail's container DOM id is related to the thumbnail's integer id
        return this.thumbnailsIdPrefix + thumbnailId;
-    };
+     };
 
     /**
      * Returns a thumbnail's integer id.
@@ -301,7 +301,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        // the thumbnail's integer id is related to the thumbnail's container DOM id
        return  parseInt(thumbnailContId.replace(this.thumbnailsIdPrefix, ""));
-    };
+     };
 
     /**
      * Add a thumbnail corresponding to the imgFileObj argument to the thumbnails bar. If there is
@@ -319,6 +319,7 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
      *     -name: file name
      *  The files array contains a single file for imgType different from 'dicom' or 'dicomzip'
      *  -thumbnail: Optional HTML5 File or custom file object (optional jpg file for a thumbnail image)
+     *  -json: Optional HTML5 or custom File object (json file with properties: thumbnailLabel and thumbnailTooltip)
      * @param {Function} optional callback to be called when the thumbnail has been added
      */
      thbarjs.ThumbnailsBar.prototype.addThumbnail = function(imgFileObj, callback) {
@@ -370,55 +371,83 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        if (imgFileObj.thumbnail) {
 
-         self.loadThumbnail(imgFileObj.thumbnail, jqTh, function() {
+         self.loadThumbnail(imgFileObj, jqTh, function() {
 
-           if (callback) {callback();}
+           if (callback) { callback(); }
          });
 
        } else {
 
          self.createThumbnail(imgFileObj, jqTh, function() {
 
-           if (callback) {callback();}
+           if (callback) { callback(); }
          });
        }
      };
 
-     /**
-      * Load a thumbnail image.
-      *
-      * @param {Oject} HTML5 File object or custom file object with properties:
-      *   -remote: a boolean indicating whether the file has not been read locally (with a filepicker)
-      *   -url the file's url
-      *   -cloudId: the id of the file in a cloud storage system if stored in the cloud
-      *   -name: file name
-      * @param {Function} jQuery object for the thumbnail's div frame.
-      * @param {Function} callback to be called when the thumbnail has been loaded.
-      */
-      thbarjs.ThumbnailsBar.prototype.loadThumbnail = function(thFile, jqTh, callback) {
-        var jqThImg = $('.view-thumbnail-img', jqTh);
+    /**
+     * Load a thumbnail image.
+     *
+     * @param {Oject} Image file object as in the addThumbnail method.
+     * @param {Function} jQuery object for the thumbnail's div frame.
+     * @param {Function} optional callback to be called when the thumbnail has been loaded.
+     */
+     thbarjs.ThumbnailsBar.prototype.loadThumbnail = function(imgFileObj, jqTh, callback) {
 
-        // renderer options object
-        var options = {
-          container: null,
-          rendererId: '',
-        };
+       var jqThImg = $('.view-thumbnail-img', jqTh);
+       var jqThInfo = $('.view-thumbnail-info', jqTh);
 
-        var tmpRenderer = new renderer.Renderer(options, this.fileManager);
+       // renderer options object
+       var options = {
+         container: null,
+         rendererId: '',
+       };
 
-        tmpRenderer.readFile(thFile, 'readAsDataURL', function(thData) {
+       var tmpRenderer = new renderer.Renderer(options, this.fileManager);
 
-          jqThImg.attr('src', thData);
-          if (callback) { callback(); }
-        });
-      };
+       tmpRenderer.readFile(imgFileObj.thumbnail, 'readAsDataURL', function(thData) {
+
+         jqThImg.attr('src', thData);
+
+         if (imgFileObj.json) {
+
+           // if there is a json file then read it
+           tmpRenderer.readJSONFile(imgFileObj.json, function(jsonObj) {
+
+             if (jsonObj) {
+
+               if (jsonObj.thumbnail) {
+
+                 // update thumbnail's info
+
+                 if (jsonObj.thumbnail.tooltip) {
+
+                   jqThImg.attr('title', jsonObj.thumbnail.tooltip);
+                 }
+
+                 if (jsonObj.thumbnail.label) {
+
+                   jqThInfo.text(jsonObj.thumbnail.label);
+                 }
+               }
+             }
+
+             if (callback) { callback(); }
+           });
+
+         } else {
+
+           if (callback) { callback(); }
+         }
+       });
+     };
 
     /**
      * Create a thumbnail image from the canvas of an internal renderer object.
      *
      * @param {Oject} Image file object as in the addThumbnail method.
      * @param {Function} jQuery object for the thumbnail's div frame.
-     * @param {Function} callback to be called when the thumbnail has been created.
+     * @param {Function} optional callback to be called when the thumbnail has been created.
      */
      thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqTh, callback) {
        var self = this;
@@ -450,67 +479,100 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
        tmpRenderer.createRenderer();
        tmpRenderer.createVolume();
 
-       tmpRenderer.readVolumeFiles( function() {
+       tmpRenderer.readVolumeFiles(function() {
 
-         if (tmpRenderer.imgFileObj.dicomInfo) {
+         tmpRenderer.renderVolume(function() {
 
-           //update the thumbnail info with the series description
-           var title = tmpRenderer.imgFileObj.dicomInfo.seriesDescription;
-           var info = title.substr(0, 10);
-           jqThImg.attr('title', title);
-           jqThInfo.text(info);
-         }
+           var renderVol = function() {
 
-         tmpRenderer.renderVolume( function() {
+             if (tmpRenderer.error) {
 
-           if (tmpRenderer.error) {
-             // hide image
-             jqThImg.hide();
-             // create invalid data container to be displayed instead
-             $( '<div class="badData"> <i class="fa fa-times"></i> Invalid data <div/>').prependTo(jqThImg.parent());
+               // hide image
+               jqThImg.hide();
 
-             tmpRenderer.destroy();
-             tempRenderCont.remove();
-
-             if (callback) {callback();}
-
-           } else {
-
-             tmpRenderer.getThumbnail( function(thData) {
-
-               jqThImg.attr('src', thData);
+               // create invalid data container to be displayed instead
+               $( '<div class="badData"> <i class="fa fa-times"></i> Invalid data <div/>').prependTo(jqThImg.parent());
 
                tmpRenderer.destroy();
                tempRenderCont.remove();
 
-               if (callback) {callback();}
+               if (callback) { callback(); }
+
+             } else {
+
+               tmpRenderer.getThumbnail(function(thData) {
+
+                 jqThImg.attr('src', thData);
+
+                 tmpRenderer.destroy();
+                 tempRenderCont.remove();
+
+                 if (callback) { callback(); }
+               });
+             }
+           };
+
+           if (tmpRenderer.imgFileObj.json) {
+
+             // if there is a json file then read it and update thumbnail's info
+             tmpRenderer.readJSONFile(tmpRenderer.imgFileObj.json, function(jsonObj) {
+
+               if (jsonObj) {
+
+                 if (jsonObj.thumbnail) {
+
+                   if (jsonObj.thumbnail.tooltip) {
+
+                     jqThImg.attr('title', jsonObj.thumbnail.tooltip);
+                   }
+
+                   if (jsonObj.thumbnail.label) {
+
+                     jqThInfo.text(jsonObj.thumbnail.label);
+                   }
+                 }
+               }
+
+               renderVol();
              });
+
+           } else {
+
+             if (tmpRenderer.imgFileObj.dicomInfo) {
+
+               // if no json file but data files are DICOM then update thumbnail's info with series description
+               var title = tmpRenderer.imgFileObj.dicomInfo.seriesDescription;
+               var info = title.substr(0, 10);
+               jqThImg.attr('title', title);
+               jqThInfo.text(info);
+             }
+
+             renderVol();
            }
          });
        });
-     };
-
-     /**
-      * Remove a thumbnail from the thumbnails bar.
-      *
-      * @param {Number} thumbnail's integer id.
-      */
-      thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(thumbnailId) {
-
-        var contId = this.getThumbnailContId(thumbnailId);
-
-        $('#' + contId).remove();
-
-        this.numThumbnails--;
-        this.numOfLoadedThumbnails--;
       };
+
+    /**
+     * Remove a thumbnail from the thumbnails bar.
+     *
+     * @param {Number} thumbnail's integer id.
+     */
+     thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(thumbnailId) {
+
+       var contId = this.getThumbnailContId(thumbnailId);
+
+       $('#' + contId).remove();
+
+       this.numThumbnails--;
+       this.numOfLoadedThumbnails--;
+     };
 
     /**
      * Sort thumbnails in the DOM by the title attribute of their <img> elements.
      */
      thbarjs.ThumbnailsBar.prototype.sortThumbnails = function() {
 
-       var parent = $('.view-thumbnail', this.jqSortable).parent();
        var thumbnails = $('.view-thumbnail', this.jqSortable).detach();
 
        var thArr = thumbnails.sort(function(el1, el2) {
@@ -519,10 +581,9 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
          var val2 = $('img', el2).attr('title');
 
          return val1 > val2;
-
        });
 
-       parent.append(thArr);
+       this.jqSortable.append(thArr);
      };
 
     /**
