@@ -161,23 +161,18 @@ define(['utiljs', 'rendererjs', 'jquery_ui'], function(util, renderer) {
 
        if (layout === 'vertical') {
 
-         cont.removeClass("view-thumbnailsbar-x");
-         cont.addClass("view-thumbnailsbar-y");
-         ths.removeClass("view-thumbnail-x");
-         ths.addClass("view-thumbnail-y");
+         cont.removeClass("view-thumbnailsbar-x").addClass("view-thumbnailsbar-y");
+         ths.removeClass("view-thumbnail-x").addClass("view-thumbnail-y");
 
        } else if (layout === 'horizontal') {
 
-         cont.removeClass("view-thumbnailsbar-y");
-         cont.addClass("view-thumbnailsbar-x");
-         ths.removeClass("view-thumbnail-y");
-         ths.addClass("view-thumbnail-x");
+         cont.removeClass("view-thumbnailsbar-y").addClass("view-thumbnailsbar-x");
+         ths.removeClass("view-thumbnail-y").addClass("view-thumbnail-x");
 
        } else if (layout === 'grid') {
 
          cont.removeClass("view-thumbnailsbar-y view-thumbnailsbar-x");
-         ths.removeClass("view-thumbnail-y");
-         ths.addClass("view-thumbnail-x");
+         ths.removeClass("view-thumbnail-y").addClass("view-thumbnail-x");
        }
 
        this.setPosition(this.position);

@@ -13,11 +13,16 @@ require.config({
     jquery: ['https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min', 'jquery/dist/jquery.min'],
     jquery_ui: ['https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min', 'jquery-ui/jquery-ui.min'],
     gapi: 'https://apis.google.com/js/api',
+    text: 'text/text',
     jszip: 'jszip/dist/jszip',
     dicomParser: 'dicomParser/dist/dicomParser.min',
     utiljs: 'utiljs/src/js/utiljs',
     fmjs: 'fmjs/src/js/fmjs',
     xtk: 'rendererjs/src/js/lib/xtk',
+    jpegmin: 'rendererjs/src/js/lib/jpegmin',
+    lossless: 'rendererjs/src/js/lib/lossless',
+    jpx: 'rendererjs/src/js/lib/jpx',
+    rendererwin: 'rendererjs/src/templates/rendererwin.html',
     rendererjs: 'rendererjs/src/js/rendererjs',
     thbarjs: '../thbarjs'
   }
