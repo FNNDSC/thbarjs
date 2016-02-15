@@ -3,7 +3,7 @@
  *
  */
 
-define(['thbarjs'], function(thbarjs) {
+define(['thbarjsPackage', 'jquery', 'jquery_ui'], function(thbarjs, $) {
 
   describe('thbarjs', function() {
     var thBar;
@@ -22,20 +22,19 @@ define(['thbarjs'], function(thbarjs) {
     // Append container div
     $(document.body).append('<div id="thbarcontainer"></div>');
 
-
     beforeEach(function() {
       thBar = new thbarjs.ThumbnailsBar(options);
       thBar.init([{
         id: 0,
-        baseUrl: "/",
-        imgType: "nii",
-        files: [{name: "vol0.nii"}]
+        baseUrl: '/',
+        imgType: 'nii',
+        files: [{name: 'vol0.nii'}]
       },
       {
         id: 1,
-        baseUrl: "/",
-        imgType: "nii",
-        files: [{name: "vol1.nii"}]
+        baseUrl: '/',
+        imgType: 'nii',
+        files: [{name: 'vol1.nii'}]
       }]);
     });
 
@@ -44,7 +43,7 @@ define(['thbarjs'], function(thbarjs) {
     });
 
     it('thbarjs.ThumbnailsBar.prototype.getThumbnailContId(0) returns th0',
-      function () {
+      function() {
         expect(thBar.getThumbnailContId(0)).toEqual('th0');
       }
     );
