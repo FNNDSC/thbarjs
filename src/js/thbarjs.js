@@ -1,23 +1,14 @@
 /**
  * This module implements a thumbnails bar
  */
-
-var dependencies = [
-/**
-//
-// NEEDS JQUERY AND JQUERY UI
-/// LOADED @ APP LEVEL
-//
-*/
-
-// bower
-'../../../utiljs/src/js/utiljs',
-'../../../rendererjs/src/js/rendererjs',
-'../../../dicomParser/dist/dicomParser',
-];
-
 // define a new module
-define(dependencies, function(util, renderer) {
+define(
+  [
+  // bower
+  '../../../utiljs/src/js/utiljs',
+  '../../../rendererjs/src/js/rendererjs',
+  '../../../dicomParser/dist/dicomParser',
+  ], function(util, renderer) {
 
   /**
    * Provide a namespace for the thumbnails bar module
