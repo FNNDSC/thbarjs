@@ -3,7 +3,7 @@
  *
  */
 
-define(['thbarjsPackage', 'jquery', 'jquery_ui'], function(thbarjs, $) {
+define(['thbarjsPackage'], function(thbarjs) {
 
   describe('thbarjs', function() {
     var thBar;
