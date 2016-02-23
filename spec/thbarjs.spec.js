@@ -3,7 +3,7 @@
  *
  */
 
-define(['thbarjsPackage'], function(thbarjs) {
+define(['thbarjs'], function(thbarjs) {
 
   describe('thbarjs', function() {
     var thBar;

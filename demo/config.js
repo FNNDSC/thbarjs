@@ -8,19 +8,19 @@ require.config({
 
     // bower packages
     {
-      name: 'fmjsPackage',
+      name: 'fmjs',
       location: 'fmjs/src',
       main: 'js/fmjs'
     },
     {
-      name: 'rendererjsPackage', // used for mapping...
+      name: 'rendererjs', // used for mapping...
       location: 'rendererjs/src',   // relative to base url
       main: 'js/rendererjs'
     },
 
     // local packages
     {
-      name: 'thbarjsPackage', // used for mapping...
+      name: 'thbarjs', // used for mapping...
       location: './',   // relative to base url
       main: 'thbarjs/src/js/thbarjs'
     }

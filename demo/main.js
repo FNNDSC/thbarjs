@@ -1,6 +1,6 @@
 require(['./config'], function() {
 
-  require(['fmjsPackage', 'rendererjsPackage', 'thbarjsPackage'], function(fm, renderer, thbar) {
+  require(['fmjs', 'rendererjs', 'thbarjs'], function(fm, renderer, thbar) {
     // Entry point
 
     $('#thbarparentcontainer').sortable({
