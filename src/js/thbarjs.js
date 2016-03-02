@@ -28,7 +28,6 @@ define(
      *   -container: thumbnails bar's container's DOM id or DOM object
      *   -position: thumbnails bar's css position object with possible properties top, bottom, left, right
      *   -layout: thumbnails bar's layout, either of the strings 'vertical', 'horizontal' or 'grid'
-     *   -thumbnailsIdPrefix: a prefix string for the DOM ids used for all of the thumbnails' containers
      * @param {Object} optional file manager object to enable reading of files from the cloud or HTML5
      * sandboxed filesystem.
      */
@@ -61,8 +60,8 @@ define(
         this.layout = options.layout;
       }
 
-      // prefix string for the DOM ids that are going to be used for the thumbnails' containers
-      this.thumbnailsIdPrefix = options.thumbnailsIdPrefix;
+      // list of DOM objects for the thumbnails' divs
+      this.thumbnails = [];
 
       // jQuery object for the sortable div element inside the thumbnails bar
       this.jqSortable = null;
@@ -95,66 +94,66 @@ define(
      * @param {Function} optional callback to be called when the thumbnails bar is ready
      */
     thbarjs.ThumbnailsBar.prototype.init = function(imgFileArr, callback) {
-    var self = this;
+      var self = this;
 
-    // append a bar handle
-    self.container.append('<div class="view-thumbnailsbar-handle">...</div>');
+      // append a bar handle
+      self.container.append('<div class="view-thumbnailsbar-handle">...</div>');
 
-    // append sortable div
-    self.jqSortable = $('<div class="view-thumbnailsbar-sortable"></div>');
-    self.container.append(self.jqSortable);
+      // append sortable div
+      self.jqSortable = $('<div class="view-thumbnailsbar-sortable"></div>');
+      self.container.append(self.jqSortable);
 
-    // add the appropriate classes
-    self.container.addClass('view-thumbnailsbar');
+      // add the appropriate classes
+      self.container.addClass('view-thumbnailsbar');
 
-    // jQuery UI options object for sortable elems
-    // ui-sortable CSS class is by default added to the containing elem
-    // an elem being moved is assigned the ui-sortable-helper class
-    var sort_opts = {
-      zIndex: 9999,
-      cursor: 'move',
-      containment: self.container.parent(), // within which elem displacement is restricted
-      helper: 'clone', // visually moving element is a clone of the corresponding thumbnail
-      dropOnEmpty: true, // allows depositing items into an empty list
+      // jQuery UI options object for sortable elems
+      // ui-sortable CSS class is by default added to the containing elem
+      // an elem being moved is assigned the ui-sortable-helper class
+      var sort_opts = {
+        zIndex: 9999,
+        cursor: 'move',
+        containment: self.container.parent(), // within which elem displacement is restricted
+        helper: 'clone', // visually moving element is a clone of the corresponding thumbnail
+        dropOnEmpty: true, // allows depositing items into an empty list
 
-      //event handlers
-      // beforeStop is called when the placeholder is still in the list
-      beforeStop: function(evt, ui) {
+        //event handlers
+        // beforeStop is called when the placeholder is still in the list
+        beforeStop: function(evt, ui) {
 
-        self.onBeforeStop(evt, ui);
-      },
+          self.onBeforeStop(evt, ui);
+        },
 
-      start: function(evt, ui) {
+        start: function(evt, ui) {
 
-        self.onStart(evt, ui);
+          self.onStart(evt, ui);
+        }
+      };
+
+      // make the sortable div within the thumbnails bar a jQuery UI's sortable element
+      self.jqSortable.sortable(sort_opts);
+
+      var checkIfThumbnailsBarIsReady =  function() {
+
+        if (++self.numOfLoadedThumbnails === self.numThumbnails) {
+
+          // all thumbnails loaded, thumbnails bar is ready
+          self.sortThumbnails(); // sort thumbnails in the DOM by title
+
+          if (callback) { callback(); }
+        }
+      };
+
+      // load thumbnail images and create their UIs when ready
+      self.numThumbnails = imgFileArr.length;
+
+      for (var i = 0; i < self.numThumbnails; i++) {
+
+        self.addThumbnail(imgFileArr[i], checkIfThumbnailsBarIsReady);
       }
+
+      // set the layout and position of the thumbnails bar
+      self.setLayout(self.layout);
     };
-
-    // make the sortable div within the thumbnails bar a jQuery UI's sortable element
-    self.jqSortable.sortable(sort_opts);
-
-    var checkIfThumbnailsBarIsReady =  function() {
-
-      if (++self.numOfLoadedThumbnails === self.numThumbnails) {
-
-        // all thumbnails loaded, thumbnails bar is ready
-        self.sortThumbnails(); // sort thumbnails in the DOM by title
-
-        if (callback) { callback(); }
-      }
-    };
-
-    // load thumbnail images and create their UIs when ready
-    self.numThumbnails = imgFileArr.length;
-
-    for (var i = 0; i < self.numThumbnails; i++) {
-
-      self.addThumbnail(imgFileArr[i], checkIfThumbnailsBarIsReady);
-    }
-
-    // set the layout and position of the thumbnails bar
-    self.setLayout(self.layout);
-  };
 
     /**
      * Set thumbnails bar's layout.
@@ -162,29 +161,30 @@ define(
      * @param {String} layout: "vertical", "horizontal" or "grid".
      */
     thbarjs.ThumbnailsBar.prototype.setLayout = function(layout) {
-       var cont = this.container;
-       var ths = $('.view-thumbnail', cont);
 
-       this.layout = layout;
+      var cont = this.container;
+      var ths = $('.view-thumbnail', cont);
 
-       if (layout === 'vertical') {
+      this.layout = layout;
 
-         cont.removeClass('view-thumbnailsbar-x').addClass('view-thumbnailsbar-y');
-         ths.removeClass('view-thumbnail-x').addClass('view-thumbnail-y');
+      if (layout === 'vertical') {
 
-       } else if (layout === 'horizontal') {
+        cont.removeClass('view-thumbnailsbar-x').addClass('view-thumbnailsbar-y');
+        ths.removeClass('view-thumbnail-x').addClass('view-thumbnail-y');
 
-         cont.removeClass('view-thumbnailsbar-y').addClass('view-thumbnailsbar-x');
-         ths.removeClass('view-thumbnail-y').addClass('view-thumbnail-x');
+      } else if (layout === 'horizontal') {
 
-       } else if (layout === 'grid') {
+        cont.removeClass('view-thumbnailsbar-y').addClass('view-thumbnailsbar-x');
+        ths.removeClass('view-thumbnail-y').addClass('view-thumbnail-x');
 
-         cont.removeClass('view-thumbnailsbar-y view-thumbnailsbar-x');
-         ths.removeClass('view-thumbnail-y').addClass('view-thumbnail-x');
-       }
+      } else if (layout === 'grid') {
 
-       this.setPosition(this.position);
-     };
+        cont.removeClass('view-thumbnailsbar-y view-thumbnailsbar-x');
+        ths.removeClass('view-thumbnail-y').addClass('view-thumbnail-x');
+      }
+
+      this.setPosition(this.position);
+    };
 
     /**
      * Set a new css position for the thumbnails bar.
@@ -192,118 +192,54 @@ define(
      * @param {Object} css position object with possible properties: "top", "bottom", "left" and "right".
      */
     thbarjs.ThumbnailsBar.prototype.setPosition = function(pos) {
-       var cont = this.container;
-       var layout = this.layout;
-       var t = '', r = '', b = '', l = '';
 
-       if (pos) {
+      var cont = this.container;
+      var layout = this.layout;
+      var t = '', r = '', b = '', l = '';
 
-         if (pos.top) {
-           this.position.top = pos.top;
-           cont.css({top: pos.top});
-           t = ' - ' + pos.top;
-         }
+      if (pos) {
 
-         if (pos.right) {
-           this.position.right = pos.right;
-           cont.css({right: pos.right});
-           r = ' - ' + pos.right;
-         }
+        if (pos.top) {
+          this.position.top = pos.top;
+          cont.css({top: pos.top});
+          t = ' - ' + pos.top;
+        }
 
-         if (pos.bottom) {
-           this.position.bottom = pos.bottom;
-           cont.css({bottom: pos.bottom});
-           b = ' - ' + pos.bottom;
-         }
+        if (pos.right) {
+          this.position.right = pos.right;
+          cont.css({right: pos.right});
+          r = ' - ' + pos.right;
+        }
 
-         if (pos.left) {
-           this.position.left = pos.left;
-           cont.css({left: pos.left});
-           l = ' - ' + pos.left;
-         }
+        if (pos.bottom) {
+          this.position.bottom = pos.bottom;
+          cont.css({bottom: pos.bottom});
+          b = ' - ' + pos.bottom;
+        }
 
-         if ((layout === 'vertical') && (t || b)) {
-           cont.css({height: 'calc(100%' + t + b + ')'});
+        if (pos.left) {
+          this.position.left = pos.left;
+          cont.css({left: pos.left});
+          l = ' - ' + pos.left;
+        }
 
-         } else if ((layout === 'horizontal') && (r || l)) {
-           cont.css({width: 'calc(100%' + r + l + ')'});
+        if ((layout === 'vertical') && (t || b)) {
+          cont.css({height: 'calc(100%' + t + b + ')'});
 
-         } else if (layout === 'grid') {
+        } else if ((layout === 'horizontal') && (r || l)) {
+          cont.css({width: 'calc(100%' + r + l + ')'});
 
-           if (t || b) {
-             cont.css({height: 'calc(100%' + t + b + ')'});
-           }
+        } else if (layout === 'grid') {
 
-           if (r || l) {
-             cont.css({width: 'calc(100%' + r + l + ')'});
-           }
-         }
-       }
-     };
+          if (t || b) {
+            cont.css({height: 'calc(100%' + t + b + ')'});
+          }
 
-    /**
-     * This method is called just before dropping a moving thumbnail's visual element on a complementary
-     * jQuery UI's sortable element.
-     *
-     * @param {Object} jQuery UI event object.
-     * @param {Object} jQuery UI ui object.
-     */
-    thbarjs.ThumbnailsBar.prototype.onBeforeStop = function(evt, ui) {
-
-      console.log('onBeforeStop not overwritten!');
-      console.log('event obj: ', evt);
-      console.log('ui obj: ', ui);
-    };
-
-    /**
-     * This method is called at the beginning of moving a thumbnail's visual element.
-     *
-     * @param {Object} jQuery UI event object.
-     * @param {Object} jQuery UI ui object.
-     */
-    thbarjs.ThumbnailsBar.prototype.onStart = function(evt, ui) {
-
-      console.log('onStart not overwritten!');
-      console.log('event obj: ', evt);
-      console.log('ui obj: ', ui);
-    };
-
-    /**
-     * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
-     *
-     * @param {String} css selector indicating the complementary sortable elements.
-     */
-    thbarjs.ThumbnailsBar.prototype.setComplementarySortableElems = function(cssSelector) {
-
-      // the moving helper element can be appended to these elements
-      this.jqSortable.sortable('option', 'appendTo', cssSelector);
-
-      // connect with these sortable elements
-      this.jqSortable.sortable('option', 'connectWith', cssSelector);
-    };
-
-    /**
-     * Return a thumbnail's container DOM id.
-     *
-     * @param {Number} thumbnail's integer id.
-     * @return {String} the thumbnail's container DOM id.
-     */
-    thbarjs.ThumbnailsBar.prototype.getThumbnailContId = function(thumbnailId) {
-
-      // the thumbnail's container DOM id is related to the thumbnail's integer id
-      return this.thumbnailsIdPrefix + thumbnailId;
-    };
-
-    /**
-     * Returns a thumbnail's integer id.
-     *
-     * @param {String} thumbnail's container DOM id.
-     * @return {Number} thumbnail's integer id.
-     */
-    thbarjs.ThumbnailsBar.prototype.getThumbnailId = function(thumbnailContId) {
-
-      // the thumbnail's integer id is related to the thumbnail's container DOM id
-      return parseInt(thumbnailContId.replace(this.thumbnailsIdPrefix, ''));
+          if (r || l) {
+            cont.css({width: 'calc(100%' + r + l + ')'});
+          }
+        }
+      }
     };
 
     /**
@@ -326,67 +262,69 @@ define(
      * @param {Function} optional callback to be called when the thumbnail has been added
      */
     thbarjs.ThumbnailsBar.prototype.addThumbnail = function(imgFileObj, callback) {
-       var fname, info, title;
-       var id = imgFileObj.id;
-       var self = this;
+      var self = this;
 
-       // we assume the name of an already existing thumbnail (eg. generated on the server side) is of the form:
-       // 1.3.12.2.1107.5.2.32.35288.30000012092602261631200043880-AXIAL_RFMT_MPRAGE-Sag_T1_MEMPRAGE_1_mm_4e_nomoco.jpg
-       if (imgFileObj.thumbnail) {
+      var fname, info, title;
+      var id = imgFileObj.id;
 
-         fname = imgFileObj.thumbnail.name;
+      // we assume the name of an already existing thumbnail (eg. generated on the server side) is of the form:
+      // 1.3.12.2.1107.5.2.32.35288.30000012092602261631200043880-AXIAL_RFMT_MPRAGE-Sag_T1_MEMPRAGE_1_mm_4e_nomoco.jpg
+      if (imgFileObj.thumbnail) {
 
-       } else if (imgFileObj.imgType !== 'dicom') {
+        fname = imgFileObj.thumbnail.name;
 
-         fname = imgFileObj.files[0].name;
+      } else if (imgFileObj.imgType !== 'dicom') {
 
-       }
+        fname = imgFileObj.files[0].name;
+      }
 
-       if (fname) {
+      if (fname) {
 
-         if (fname.lastIndexOf('-') !== -1) {
+        if (fname.lastIndexOf('-') !== -1) {
 
-           title = fname.substring(0, fname.lastIndexOf('.'));
-           title = title.substring(title.lastIndexOf('-') + 1);
-           info = title.substr(0, 10);
+          title = fname.substring(0, fname.lastIndexOf('.'));
+          title = title.substring(title.lastIndexOf('-') + 1);
+          info = title.substr(0, 10);
 
-         } else {
+        } else {
 
-           title = fname;
-           info = fname.substring(0, fname.lastIndexOf('.')).substr(-10);
-         }
+          title = fname;
+          info = fname.substring(0, fname.lastIndexOf('.')).substr(-10);
+        }
 
-       } else {
+      } else {
 
-         title = imgFileObj.files[0].name;
-         info = title.substr(-10);
-       }
+        title = imgFileObj.files[0].name;
+        info = title.substr(-10);
+      }
 
-       // append this thumbnail to the sortable div within the thumbnails bar
-       var jqTh = $(
-         '<div id="' + self.getThumbnailContId(id) + '" class="view-thumbnail">' +
-           '<img class="view-thumbnail-img" title="' + title + '">' +
+      // create thumbnail elem
+      var jqTh = $(
+        '<div class="view-thumbnail">' +
+          '<img class="view-thumbnail-img" title="' + title + '">' +
            '<div class="view-thumbnail-info">' + info + '</div>' +
-         '</div>'
-       );
+        '</div>'
+      );
 
-       self.jqSortable.append(jqTh);
+      // append thumbnail elem
+      self.thumbnails[id] = jqTh[0];
+      self.jqSortable.append(jqTh);
 
-       if (imgFileObj.thumbnail) {
+      if (imgFileObj.thumbnail) {
 
-         self.loadThumbnail(imgFileObj, jqTh, function() {
+        self.loadThumbnail(imgFileObj, jqTh, function() {
 
-           if (callback) { callback(); }
-         });
+          if (callback) { callback(); }
+        });
 
-       } else {
+      } else {
 
-         self.createThumbnail(imgFileObj, jqTh, function() {
+        self.createThumbnail(imgFileObj, jqTh, function() {
 
-           if (callback) { callback(); }
-         });
-       }
-     };
+          if (callback) { callback(); }
+        });
+      }
+    };
 
     /**
      * Load a thumbnail image.
@@ -401,10 +339,7 @@ define(
       var jqThInfo = $('.view-thumbnail-info', jqTh);
 
       // renderer options object
-      var options = {
-         container: null,
-         rendererId: '',
-       };
+      var options = {container: null};
 
       var tmpRenderer = new renderer.Renderer(options, this.fileManager);
 
@@ -453,120 +388,193 @@ define(
      * @param {Function} optional callback to be called when the thumbnail has been created.
      */
     thbarjs.ThumbnailsBar.prototype.createThumbnail = function(imgFileObj, jqTh, callback) {
-    var self = this;
-    var jqThImg = $('.view-thumbnail-img', jqTh);
-    var jqThInfo = $('.view-thumbnail-info', jqTh);
+      var self = this;
 
-    // append a container for the internal temporal renderer
-    var tempRenderCont = $('<div></div>');
-    self.container.append(tempRenderCont);
+      var jqThImg = $('.view-thumbnail-img', jqTh);
+      var jqThInfo = $('.view-thumbnail-info', jqTh);
 
-    // renderer options object
-    var options = {
-         container: tempRenderCont[0],
-         rendererId: self.thumbnailsIdPrefix + '_tmprenderer' + imgFileObj.id, // for the internal XTK renderer container
-       };
+      // append a container for the internal temporal renderer
+      var tempRenderCont = $('<div class="view-renderer"></div>');
+      self.container.append(tempRenderCont);
 
-    // append a container for the temporal renderer's internal XTK renderer
-    tempRenderCont.append('<div id="' + options.rendererId + '"></div>');
+      // renderer options object
+      var options = {container: tempRenderCont[0]};
 
-    // make div for the renderer's canvas the same size as the <img> element
-    var imgWidth = jqThImg.css('width');
-    var imgHeight = jqThImg.css('height');
-    $('#' + options.rendererId).css({width: imgWidth, height: imgHeight});
+      // append a container for the temporal renderer's internal XTK renderer
+      var xtkContainer = $('<div class="view-renderer-content"></div>');
+      tempRenderCont.append(xtkContainer);
 
-    // create the temporal renderer object
-    var tmpRenderer = new renderer.Renderer(options, self.fileManager);
+      // make div for the renderer's canvas the same size as the <img> element
+      var imgWidth = jqThImg.css('width');
+      var imgHeight = jqThImg.css('height');
+      xtkContainer.css({width: imgWidth, height: imgHeight});
 
-    tmpRenderer.imgFileObj = imgFileObj;
-    tmpRenderer.createRenderer();
-    tmpRenderer.createVolume();
+      // create the temporal renderer object
+      var tmpRenderer = new renderer.Renderer(options, self.fileManager);
 
-    tmpRenderer.readVolumeFiles(function() {
+      tmpRenderer.imgFileObj = imgFileObj;
+      tmpRenderer.createRenderer();
+      tmpRenderer.createVolume();
 
-      tmpRenderer.renderVolume(function() {
+      tmpRenderer.readVolumeFiles(function() {
 
-        var renderVol = function() {
+        tmpRenderer.renderVolume(function() {
 
-          if (tmpRenderer.error) {
+          var renderVol = function() {
 
-            // hide image
-            jqThImg.hide();
+            if (tmpRenderer.error) {
 
-            // create invalid data container to be displayed instead
-            $('<div class="badData"> <i class="fa fa-times"></i> Invalid data <div/>').prependTo(jqThImg.parent());
+              // hide image
+              jqThImg.hide();
 
-            tmpRenderer.destroy();
-            tempRenderCont.remove();
-
-            if (callback) { callback(); }
-
-          } else {
-
-            tmpRenderer.getThumbnail(function(thData) {
-
-              jqThImg.attr('src', thData);
+              // create invalid data container to be displayed instead
+              $('<div class="badData"> <i class="fa fa-times"></i> Invalid data <div/>').prependTo(jqThImg.parent());
 
               tmpRenderer.destroy();
               tempRenderCont.remove();
 
               if (callback) { callback(); }
-            });
-          }
-        };
 
-        if (tmpRenderer.imgFileObj.json) {
+            } else {
 
-          // if there is a json file then read it and update thumbnail's info
-          tmpRenderer.readJSONFile(tmpRenderer.imgFileObj.json, function(jsonObj) {
+              tmpRenderer.getThumbnail(function(thData) {
 
-            if (jsonObj) {
+                jqThImg.attr('src', thData);
 
-              if (jsonObj.thumbnail) {
+                tmpRenderer.destroy();
+                tempRenderCont.remove();
 
-                if (jsonObj.thumbnail.tooltip) {
+                if (callback) { callback(); }
+              });
+            }
+          };
 
-                  jqThImg.attr('title', jsonObj.thumbnail.tooltip);
-                }
+          if (tmpRenderer.imgFileObj.json) {
 
-                if (jsonObj.thumbnail.label) {
+            // if there is a json file then read it and update thumbnail's info
+            tmpRenderer.readJSONFile(tmpRenderer.imgFileObj.json, function(jsonObj) {
 
-                  jqThInfo.text(jsonObj.thumbnail.label);
+              if (jsonObj) {
+
+                if (jsonObj.thumbnail) {
+
+                  if (jsonObj.thumbnail.tooltip) {
+
+                    jqThImg.attr('title', jsonObj.thumbnail.tooltip);
+                  }
+
+                  if (jsonObj.thumbnail.label) {
+
+                    jqThInfo.text(jsonObj.thumbnail.label);
+                  }
                 }
               }
+
+              renderVol();
+            });
+
+          } else {
+
+            if (tmpRenderer.imgFileObj.dicomInfo) {
+
+              // if no json file but data files are DICOM then update thumbnail's info with series description
+              var title = tmpRenderer.imgFileObj.dicomInfo.seriesDescription;
+              var info = title.substr(0, 10);
+              jqThImg.attr('title', title);
+              jqThInfo.text(info);
             }
 
             renderVol();
-          });
-
-        } else {
-
-          if (tmpRenderer.imgFileObj.dicomInfo) {
-
-            // if no json file but data files are DICOM then update thumbnail's info with series description
-            var title = tmpRenderer.imgFileObj.dicomInfo.seriesDescription;
-            var info = title.substr(0, 10);
-            jqThImg.attr('title', title);
-            jqThInfo.text(info);
           }
-
-          renderVol();
-        }
+        });
       });
-    });
-  };
+    };
+
+    /**
+     * This method is called just before dropping a moving thumbnail's visual element on a complementary
+     * jQuery UI's sortable element.
+     *
+     * @param {Object} jQuery UI event object.
+     * @param {Object} jQuery UI ui object.
+     */
+    thbarjs.ThumbnailsBar.prototype.onBeforeStop = function(evt, ui) {
+
+      console.log('onBeforeStop not overwritten!');
+      console.log('event obj: ', evt);
+      console.log('ui obj: ', ui);
+    };
+
+    /**
+     * This method is called at the beginning of moving a thumbnail's visual element.
+     *
+     * @param {Object} jQuery UI event object.
+     * @param {Object} jQuery UI ui object.
+     */
+    thbarjs.ThumbnailsBar.prototype.onStart = function(evt, ui) {
+
+      console.log('onStart not overwritten!');
+      console.log('event obj: ', evt);
+      console.log('ui obj: ', ui);
+    };
+
+    /**
+     * Set complementary jQuery UI sortable elements which the moving helper can be visually appended to.
+     *
+     * @param {String} css selector indicating the complementary sortable elements.
+     */
+    thbarjs.ThumbnailsBar.prototype.setComplementarySortableElems = function(cssSelector) {
+
+      // the moving helper element can be appended to these elements
+      this.jqSortable.sortable('option', 'appendTo', cssSelector);
+
+      // connect with these sortable elements
+      this.jqSortable.sortable('option', 'connectWith', cssSelector);
+    };
+
+    /**
+     * Return the jQuery object for a thumbnail's container.
+     *
+     * @param {Number} thumbnail's integer id.
+     * @return {Object} DOM object for a thumbnail's container or null or undefined.
+     */
+    thbarjs.ThumbnailsBar.prototype.getThumbnail = function(id) {
+
+      return this.thumbnails[id];
+    };
+
+    /**
+     * Returns a thumbnail's integer id.
+     *
+     * @param {Object} DOM object for the thumbnail's container.
+     * @return {Number} thumbnail's integer id or -1 if not found.
+     */
+    thbarjs.ThumbnailsBar.prototype.getThumbnailId = function(th) {
+      var id = -1;
+
+      for (var i = 0; i < this.thumbnails.length; i++) {
+
+        if (this.thumbnails[i] && this.thumbnails[i] === th) {
+
+          id = i;
+          break;
+        }
+      }
+
+      return id;
+    };
 
     /**
      * Remove a thumbnail from the thumbnails bar.
      *
      * @param {Number} thumbnail's integer id.
      */
-    thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(thumbnailId) {
+    thbarjs.ThumbnailsBar.prototype.removeThumbnail = function(id) {
 
-      var contId = this.getThumbnailContId(thumbnailId);
+      var jqTh = this.getThumbnail(id);
 
-      $('#' + contId).remove();
+      $(jqTh).remove();
 
+      this.thumbnails[id] = null;
       this.numThumbnails--;
       this.numOfLoadedThumbnails--;
     };
@@ -596,6 +604,7 @@ define(
 
       this.numThumbnails = 0;
       this.numOfLoadedThumbnails = 0;
+      this.thumbnails = [];
       this.container.empty();
       this.container = null;
     };

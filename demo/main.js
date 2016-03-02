@@ -24,7 +24,6 @@ require(['./config'], function() {
         left: '10px'
       },
       layout: 'vertical',
-      thumbnailsIdPrefix: 'th'
     };
 
     // Event handler for the directory loader button
